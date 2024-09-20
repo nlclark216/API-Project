@@ -45,6 +45,8 @@ router.post('/', validateLogin, async (req, res, next) => {
   
       const safeUser = {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         username: user.username,
       };
@@ -65,13 +67,13 @@ router.delete('/', (_req, res) => {
   );
 
 // Restore session user
-router.get(
-  '/',
-  (req, res) => {
+router.get('/', (req, res) => {
     const { user } = req;
     if (user) {
       const safeUser = {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         username: user.username,
       };
