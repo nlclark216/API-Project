@@ -8,11 +8,24 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+
 // Log in
-router.post(
-    '/',
-    async (req, res, next) => {
+router.post('/', async (req, res, next) => {
       const { credential, password } = req.body;
+
+      if(!credential){
+        const err = new Error("Validation error");
+        err.status = 400;
+        err.errors = { "credential": "Email or username is required" };
+        return next(err);
+      }
+
+      if(!password){
+        const err = new Error("Validation error");
+        err.status = 400;
+        err.errors = { "password": "Password is required" };
+        return next(err);
+      }
   
       const user = await User.unscoped().findOne({
         where: {
@@ -27,8 +40,8 @@ router.post(
         const err = new Error('Login failed');
         err.status = 401;
         err.title = 'Login failed';
-        err.errors = { credential: 'The provided credentials were invalid.' };
-        return next(err);
+        err.errors = { "message": "Invalid credentials" };
+        return next(err.errors);
       }
   
       const safeUser = {
@@ -53,16 +66,17 @@ router.delete('/', (_req, res) => {
   );
 
 // Restore session user
-router.get(
-  '/',
-  (req, res) => {
+router.get('/', (req, res) => {
     const { user } = req;
     if (user) {
       const safeUser = {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
         username: user.username,
       };
+      console.log(safeUser);
       return res.json({
         user: safeUser
       });
