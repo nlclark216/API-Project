@@ -8,10 +8,10 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+
+
 // Log in
-router.post(
-    '/',
-    async (req, res, next) => {
+router.post('/', async (req, res, next) => {
       const { credential, password } = req.body;
   
       const user = await User.unscoped().findOne({
