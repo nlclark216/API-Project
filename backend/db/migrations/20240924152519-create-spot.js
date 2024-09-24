@@ -16,11 +16,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ownerId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        unique: true
-      },
+      // ownerId: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: false,
+      //   unique: true
+      // },
       address: {
         type: Sequelize.STRING,
         allowNull: false,

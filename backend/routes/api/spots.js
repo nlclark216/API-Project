@@ -9,10 +9,6 @@ const router = express.Router();
  const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const validateSpot = [
-    check('ownerId')
-    .exists({checkFalsy: true})
-    .isNumeric({checkFalsy: true})
-    .withMessage('Please Provide a Valid ownerId'),
   check('address')
     .exists({checkFalsy: true})
     .isLength({min: 2})
@@ -49,20 +45,21 @@ const validateSpot = [
   .exists({checkFalsy: true})
   .isLength({min: 1})
   .withMessage("Description is required"),
-  check('Price')
+  check('price')
   .exists({checkFalsy: true})
  .isFloat({ min: 0})
   .withMessage("Price per day must be a positive number"),
     handleValidationErrors
 ]
 router.post('/',validateSpot, async (req, res) => {
-    const { ownerId, address, city, state, country, 
+    const {address, city, state, country, 
         lat, lng, name, description, price } = req.body;
 
-    const spot = await Spot.create({ownerId, address, city, state, country, 
+    const spot = await Spot.create({address, city, state, country, 
         lat, lng, name, description, price});
 
     const validSpot = {
+        id: spot.id,
         ownerId: spot.ownerId, 
         address: spot.address, 
         city: spot.city, 
