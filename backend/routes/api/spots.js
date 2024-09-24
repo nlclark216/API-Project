@@ -2,6 +2,8 @@ const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
+const { requireAuth } = require('../../utils/auth')
+
 const { Spot } = require('../../db/models');
 
 const router = express.Router();
@@ -55,12 +57,14 @@ router.post('/',validateSpot, async (req, res) => {
     const {address, city, state, country, 
         lat, lng, name, description, price } = req.body;
 
+    const {user} = req;
+
     const spot = await Spot.create({address, city, state, country, 
-        lat, lng, name, description, price});
+        lat, lng, name, description, price, ownerId: user.id});
 
     const validSpot = {
         id: spot.id,
-        ownerId: spot.ownerId, 
+        ownerId: user.id, 
         address: spot.address, 
         city: spot.city, 
         state: spot.state, 
@@ -83,11 +87,20 @@ router.get('/', async (req, res) => {
     return res.json({Spots: spots})
 })
 
-router.get('/current', async (req, res) => {
+router.get('/current', requireAuth, async (req, res) => {
     const {user} = req;
     const spot = await Spot.findAll({
+        where: {ownerId: user.id}
     })
-    return res.json(user);
+    return res.json(spot);
+})
+
+router.get('/:spotId', async (req, res) => {
+    const spot = await Spot.findByPk(req.params.spotId)
+    if(!spot) res.status(404).json({
+        "message": "Spot couldn't be found"
+      })
+    return res.json(spot)
 })
 
 
