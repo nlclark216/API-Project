@@ -13,6 +13,9 @@
 
 git checkout -b <<BRANCH-NAME>>
 
+// after branch is created, pull from main or dev
+
+git pull origin main OR dev
 
 
 // push created branch to GitHub remote repository
