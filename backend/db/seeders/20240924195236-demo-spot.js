@@ -24,7 +24,7 @@ module.exports = {
         price: 123
       },
       {
-        ownerId: 1,
+        ownerId: 2,
         address: "456 Elm Street",
         city: "Los Angeles",
         state: "California",
@@ -36,7 +36,7 @@ module.exports = {
         price: 150
       }, 
       {
-        ownerId: 1,
+        ownerId: 3,
         address: "789 Maple Avenue",
         city: "New York",
         state: "New York",
@@ -48,7 +48,7 @@ module.exports = {
         price: 200
       },
       {
-        ownerId: 1,
+        ownerId: 4,
         address: "101 Pine Street",
         city: "Chicago",
         state: "Illinois",
@@ -60,7 +60,7 @@ module.exports = {
         price: 175
       },
       {
-        ownerId: 1,
+        ownerId: 5,
         address: "202 Oak Lane",
         city: "Houston",
         state: "Texas",
@@ -72,7 +72,7 @@ module.exports = {
         price: 130
       },
       {
-        ownerId: 1,
+        ownerId: 6,
         address: "303 Birch Road",
         city: "Miami",
         state: "Florida",

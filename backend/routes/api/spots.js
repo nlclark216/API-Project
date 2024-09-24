@@ -83,6 +83,14 @@ router.get('/', async (req, res) => {
     return res.json({Spots: spots})
 })
 
+router.get('/current', async (req, res) => {
+    const {user} = req;
+    const spot = await Spot.findAll({
+        where: {ownerId: user.id}
+    })
+    return res.json(spot);
+})
+
 
 
 
