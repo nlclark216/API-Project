@@ -37,4 +37,9 @@ git checkout <<BRANCH-NAME>>
 
 **SEQUELIZE COMMANDS**
 
-npx sequelize model:generate --name Spot --attributes ownerId:integer,address:string,city:string,state:string,country:string,lat:decimal,lng:decimal,name:string,description:string,price:decimal
+
+// create Spot model
+npx dotenv sequelize model:generate --name Spot --attributes ownerId:integer,address:string,city:string,state:string,country:string,lat:decimal,lng:decimal,name:string,description:string,price:decimal
+
+// generate demo-spot seeder
+npx sequelize seed:generate --name demo-spot
