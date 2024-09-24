@@ -86,9 +86,8 @@ router.get('/', async (req, res) => {
 router.get('/current', async (req, res) => {
     const {user} = req;
     const spot = await Spot.findAll({
-        where: {ownerId: user.id}
     })
-    return res.json(spot);
+    return res.json(user);
 })
 
 
