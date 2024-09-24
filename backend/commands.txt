@@ -1,0 +1,28 @@
+**GIT COMMANDS**
+
+// create a branch
+// MAKE SURE NEW BRANCHES START 
+// FROM CORRECT BRANCH (usually dev)
+
+git checkout -b <<BRANCH-NAME>>
+
+
+
+// push created branch to GitHub remote repository
+
+git push origin <<BRANCH-NAME>>
+
+
+
+// move to specific branch
+
+git checkout <<BRANCH-NAME>>
+
+
+
+// merge a branch
+
+1. git checkout dev
+2. git pull origin dev
+3. git merge <<NEW-BRANCH-NAME>>
+4. git push origin dev
