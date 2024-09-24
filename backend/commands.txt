@@ -1,6 +1,13 @@
 **GIT COMMANDS**
 
+// pull all branches from repository
+
+1. git clone <<REPO-URL>>
+2. git branch -r | grep -v '\->' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+3. git pull all
+
 // create a branch
+
 // MAKE SURE NEW BRANCHES START 
 // FROM CORRECT BRANCH (usually dev)
 
