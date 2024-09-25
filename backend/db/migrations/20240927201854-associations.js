@@ -18,8 +18,8 @@ module.exports = {
      */
 
     const spotsTable = await queryInterface.describeTable('Spots');
-    
-    if (spotsTable.ownerId) {
+
+    if (!spotsTable.ownerId) {
       await queryInterface.addColumn('Spots', 'ownerId', {
         type: Sequelize.INTEGER,
         references: { model: 'Users' },
@@ -28,7 +28,6 @@ module.exports = {
       }, options)
     }
 
-    
 
     await queryInterface.addColumn('SpotImages', 'spotId', {
       type: Sequelize.INTEGER,
