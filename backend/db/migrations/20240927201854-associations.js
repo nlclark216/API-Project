@@ -2,6 +2,11 @@
 
 /** @type {import('sequelize-cli').Migration} */
 
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+};
+
 
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -46,6 +51,7 @@ module.exports = {
     })
   },
 
+
   async down (queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
@@ -53,7 +59,7 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn('Spots', 'ownerId');
+    await queryInterface.removeColumn("Spots", 'ownerId');
     await queryInterface.removeColumn('SpotImages', 'spotId');
     await queryInterface.removeColumn('Reviews', 'spotId');
     await queryInterface.removeColumn('Reviews', 'userId');
