@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 
 const { requireAuth } = require('../../utils/auth')
 
-const { Spot } = require('../../db/models');
+const { Spot, SpotImage } = require('../../db/models');
 
 const router = express.Router();
 
@@ -96,11 +96,34 @@ router.get('/current', requireAuth, async (req, res) => {
 })
 
 router.get('/:spotId', async (req, res) => {
-    const spot = await Spot.findByPk(req.params.spotId)
+    const spot = await Spot.findByPk(req.params.spotId);
     if(!spot) res.status(404).json({
         "message": "Spot couldn't be found"
       })
-    return res.json(spot)
+    return res.json(spot);
+})
+
+router.post('/:spotId/images', async (req, res) => {
+    const spot = await Spot.findByPk(req.params.spotId);
+
+    if(!spot){
+      return res.status(404).json({
+        "message": "Spot couldn't be found"
+      })
+    }
+
+    const { url, preview } = req.body;
+    const img = await SpotImage.create({
+      url: url,
+      preview: preview,
+      spotId: spot.id
+    })
+    
+    return res.json({
+      id: img.id,
+      url: img.url,
+      preview: img.preview
+    });
 })
 
 

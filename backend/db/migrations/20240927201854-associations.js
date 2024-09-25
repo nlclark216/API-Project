@@ -16,6 +16,13 @@ module.exports = {
       onDelete: 'cascade',
       allowNull: false
     })
+
+    await queryInterface.addColumn('SpotImages', 'spotId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Spots' },
+      onDelete: 'cascade',
+      allowNull: false
+    })
   },
 
   async down (queryInterface, Sequelize) {
@@ -25,6 +32,7 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn('Spots', 'ownerId')
+    await queryInterface.removeColumn('Spots', 'ownerId');
+    await queryInterface.removeColumn('SpotImages', 'spotId');
   }
 };

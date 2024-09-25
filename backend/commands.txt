@@ -39,7 +39,15 @@ git checkout <<BRANCH-NAME>>
 
 
 // create Spot model
-npx dotenv sequelize model:generate --name Spot --attributes ownerId:integer,address:string,city:string,state:string,country:string,lat:decimal,lng:decimal,name:string,description:string,price:decimal
+npx sequelize model:generate --name Spot --attributes ownerId:integer,address:string,city:string,state:string,country:string,lat:decimal,lng:decimal,name:string,description:string,price:decimal
+npx sequelize model:generate --name SpotImage --attributes spotId:integer,url:string,preview:boolean
 
 // generate demo-spot seeder
 npx sequelize seed:generate --name demo-spot
+
+
+One-to-Many between Spots and SpotImages
+spot.js
+Spots.hasMany(models.SpotImages, { foreignKey: "spotId" });
+spotImage.js
+SpotImages.belongsTo(models.Spots, { foreignKey: "spotId" });
