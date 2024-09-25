@@ -22,7 +22,7 @@ module.exports = {
       references: { model: 'Users' },
       onDelete: 'cascade',
       allowNull: false
-    })
+    }, options)
 
     await queryInterface.addColumn('SpotImages', 'spotId', {
       type: Sequelize.INTEGER,
@@ -59,10 +59,17 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn("Spots", 'ownerId');
-    await queryInterface.removeColumn('SpotImages', 'spotId');
-    await queryInterface.removeColumn('Reviews', 'spotId');
-    await queryInterface.removeColumn('Reviews', 'userId');
-    await queryInterface.removeColumn('ReviewImages', 'reviewId');
+    options.tableName = 'Spots';
+    await queryInterface.removeColumn(options);
+    options.tableName = 'SpotImages';
+    await queryInterface.removeColumn(options);
+    // await queryInterface.removeColumn('SpotImages', 'spotId');
+    options.tableName = 'Reviews';
+    await queryInterface.removeColumn(options);
+    // await queryInterface.removeColumn('Reviews', 'spotId');
+    // await queryInterface.removeColumn('Reviews', 'userId');
+    options.tableName = 'ReviewImages';
+    await queryInterface.removeColumn(options);
+    // await queryInterface.removeColumn('ReviewImages', 'reviewId');
   }
 };
