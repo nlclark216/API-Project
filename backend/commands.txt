@@ -37,8 +37,10 @@ git checkout <<BRANCH-NAME>>
 
 **SEQUELIZE COMMANDS**
 
-npx dotenv sequelize db:migrate:undo:all
+
 npx dotenv sequelize db:seed:undo:all
+npx dotenv sequelize db:migrate:undo:all
+
 
 npx dotenv sequelize db:migrate
 npx dotenv sequelize db:seed:all
@@ -47,13 +49,15 @@ npx dotenv sequelize db:seed:all
 // create Spot model
 npx sequelize model:generate --name Spot --attributes ownerId:integer,address:string,city:string,state:string,country:string,lat:decimal,lng:decimal,name:string,description:string,price:decimal
 npx sequelize model:generate --name SpotImage --attributes spotId:integer,url:string,preview:boolean
+npx sequelize model:generate --name Review --attributes spotId:integer,review:string,stars:integer
+npx sequelize model:generate --name ReviewImage --attributes url:string
 
 // generate demo-spot seeder
 npx sequelize seed:generate --name demo-spot
 
 
-One-to-Many between Spots and SpotImages
-spot.js
-Spots.hasMany(models.SpotImages, { foreignKey: "spotId" });
-spotImage.js
-SpotImages.belongsTo(models.Spots, { foreignKey: "spotId" });
+One-to-Many between Review and ReviewImage
+review.js
+Review.hasMany(models.ReviewImage, { foreignKey: "reviewId" });
+reviewimage.js
+ReviewImage.belongsTo(models.Review, { foreignKey: "reviewId" });

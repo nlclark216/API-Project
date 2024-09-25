@@ -1,6 +1,8 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
+
+
 module.exports = {
   async up (queryInterface, Sequelize) {
     /**
@@ -23,6 +25,25 @@ module.exports = {
       onDelete: 'cascade',
       allowNull: false
     })
+
+    await queryInterface.addColumn('Reviews', 'spotId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Spots' },
+      onDelete: 'cascade',
+      allowNull: false
+    })
+
+    await queryInterface.addColumn('Reviews', 'userId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Users' },
+      onDelete: 'cascade',
+      allowNull: false
+    })
+
+    await queryInterface.addColumn('ReviewImages', 'reviewId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Reviews' }
+    })
   },
 
   async down (queryInterface, Sequelize) {
@@ -34,5 +55,8 @@ module.exports = {
      */
     await queryInterface.removeColumn('Spots', 'ownerId');
     await queryInterface.removeColumn('SpotImages', 'spotId');
+    await queryInterface.removeColumn('Reviews', 'spotId');
+    await queryInterface.removeColumn('Reviews', 'userId');
+    await queryInterface.removeColumn('ReviewImages', 'reviewId');
   }
 };

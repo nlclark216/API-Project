@@ -6,24 +6,31 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 };
 
-const { Spot } = require('../models')
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('SpotImages', {
+    await queryInterface.createTable('Reviews', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      url: {
+      review: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+          notEmpty: true
+        }
       },
-      preview: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
+      stars: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        validate: {
+          isInt: true,
+          min: 1,
+          max: 5
+        }
       },
       createdAt: {
         allowNull: false,
@@ -38,7 +45,7 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = "SpotImages";
+    options.tableName = 'Reviews';
     await queryInterface.dropTable(options);
   }
 };
