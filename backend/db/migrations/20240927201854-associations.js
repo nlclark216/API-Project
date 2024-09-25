@@ -17,12 +17,18 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
 
-    await queryInterface.addColumn('Spots', 'ownerId', {
-      type: Sequelize.INTEGER,
-      references: { model: 'Users' },
-      onDelete: 'cascade',
-      allowNull: false
-    }, options)
+    const spotsTable = await queryInterface.describeTable('Spots');
+    
+    if (spotsTable.ownerId) {
+      await queryInterface.addColumn('Spots', 'ownerId', {
+        type: Sequelize.INTEGER,
+        references: { model: 'Users' },
+        onDelete: 'cascade',
+        allowNull: false
+      }, options)
+    }
+
+    
 
     await queryInterface.addColumn('SpotImages', 'spotId', {
       type: Sequelize.INTEGER,
