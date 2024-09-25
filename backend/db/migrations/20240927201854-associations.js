@@ -29,26 +29,26 @@ module.exports = {
       references: { model: 'Spots' },
       onDelete: 'cascade',
       allowNull: false
-    })
+    }, options)
 
     await queryInterface.addColumn('Reviews', 'spotId', {
       type: Sequelize.INTEGER,
       references: { model: 'Spots' },
       onDelete: 'cascade',
       allowNull: false
-    })
+    }, options)
 
     await queryInterface.addColumn('Reviews', 'userId', {
       type: Sequelize.INTEGER,
       references: { model: 'Users' },
       onDelete: 'cascade',
       allowNull: false
-    })
+    }, options)
 
     await queryInterface.addColumn('ReviewImages', 'reviewId', {
       type: Sequelize.INTEGER,
       references: { model: 'Reviews' }
-    })
+    }, options)
   },
 
 
