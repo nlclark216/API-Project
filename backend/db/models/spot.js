@@ -81,11 +81,11 @@ module.exports = (sequelize, DataTypes) => {
         isNumeric: true,
       }
     },
-    ownerId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      foreignKey: true
-    },
+    // ownerId: {
+    //   type: DataTypes.INTEGER,
+    //   allowNull: false,
+    //   foreignKey: true
+    // },
   }, {
     sequelize,
     modelName: 'Spot',
