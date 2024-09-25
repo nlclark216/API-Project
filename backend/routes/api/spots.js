@@ -8,8 +8,9 @@ const { Spot, SpotImage } = require('../../db/models');
 
 const router = express.Router();
 
- const { check } = require('express-validator');
+const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
+
 const validateSpot = [
   check('address')
     .exists({checkFalsy: true})
@@ -124,6 +125,57 @@ router.post('/:spotId/images', async (req, res) => {
       url: img.url,
       preview: img.preview
     });
+})
+
+router.put('/:spotId', requireAuth, validateSpot, async (req, res) => {
+  const { address, city, state, country, lat, lng, name, description, price } = req.body;
+
+  const spot = await Spot.findByPk(req.params.spotId);
+
+  if(!spot){
+    return res.status(404).json({
+      "message": "Spot couldn't be found"
+    })
+  }
+
+  if(spot.ownerId === req.user.id){
+      {
+      spot.address = address,
+      spot.city = city,
+      spot.state = state,
+      spot.country = country,
+      spot.lat = lat,
+      spot.lng = lng,
+      spot.name = name,
+      spot.description = description,
+      spot.price = price
+    }
+    return res.json(spot)
+  } else {
+      return res.status(400).json({
+      message: 'User not authorized'
+    }
+  )}
+})
+
+router.delete('/:spotId', requireAuth, async (req, res) => {
+  const spot = await Spot.findByPk(req.params.spotId);
+
+  if(!spot){
+    return res.status(404).json({
+      "message": "Spot couldn't be found"
+    })
+  }
+
+  if(spot.ownerId === req.user.id){
+    // remove spot from spots table
+
+    await spot.destroy();
+
+    return res.json({
+      "message": "Successfully deleted"
+    })
+  }
 })
 
 
