@@ -11,6 +11,12 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
 const validateSignup = [
+    check('firstName')
+      .exists({ checkFalsy: true })
+      .withMessage("First Name is required"),
+    check('lastName')
+      .exists({ checkFalsy: true })
+      .withMessage("Last Name is required"),
     check('email')
       .exists({ checkFalsy: true })
       .isEmail()
@@ -29,6 +35,7 @@ const validateSignup = [
       .withMessage('Password must be 6 characters or more.'),
     handleValidationErrors
   ];
+
 
 // Sign up
 router.post('/', validateSignup, async (req, res) => {
