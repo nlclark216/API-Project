@@ -81,20 +81,20 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    options.tableName = 'Spots';
+    // options.tableName = 'Spots';
     await queryInterface.removeColumn('Spots', 'ownerId');
 
-    options.tableName = 'SpotImages';
+    // options.tableName = 'SpotImages';
     await queryInterface.removeColumn('SpotImages', 'spotId');
     // await queryInterface.removeColumn('SpotImages', 'spotId');
 
-    options.tableName = 'Reviews';
+    // options.tableName = 'Reviews';
     await queryInterface.removeColumn('Reviews', 'spotId');
     await queryInterface.removeColumn('Reviews', 'userId');
     // await queryInterface.removeColumn('Reviews', 'spotId');
     // await queryInterface.removeColumn('Reviews', 'userId');
 
-    options.tableName = 'ReviewImages';
+    // options.tableName = 'ReviewImages';
     await queryInterface.removeColumn('ReviewImages', 'reviewId');
     // await queryInterface.removeColumn('ReviewImages', 'reviewId');
   }
