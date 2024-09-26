@@ -3,10 +3,8 @@
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  // define your schema in options object
+  options.schema = process.env.SCHEMA; 
 };
-
-const { Spot } = require('../models')
 
 module.exports = {
   async up(queryInterface, Sequelize) {
