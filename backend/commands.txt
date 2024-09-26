@@ -60,6 +60,10 @@ npx sequelize migration:generate --name review-association
 
 // generate demo-spot seeder
 npx sequelize seed:generate --name demo-spot
+npx sequelize seed:generate --name demo-review
+npx sequelize seed:generate --name demo-booking
+npx sequelize seed:generate --name demo-review-img
+npx sequelize seed:generate --name demo-spot-img
 
 
 One-to-Many between Review and ReviewImage
