@@ -17,62 +17,45 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
 
-    // const spotsTable = await queryInterface.describeTable('Spots');
-    
 
-    // if (!spotsTable.ownerId) {
-      options.tableName = 'Spots';
-      await queryInterface.addColumn(options, 'ownerId', {
-        type: Sequelize.INTEGER,
-        references: { model: 'Users' },
-        onDelete: 'cascade',
-        allowNull: false
-      });
-    // };
+    options.tableName = 'Spots';
+    await queryInterface.addColumn(options, 'ownerId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Users' },
+      onDelete: 'cascade',
+      allowNull: false
+    });
 
-    // const spotImagesTable = await queryInterface.describeTable('SpotImages');
 
-    // if(!spotImagesTable.spotId){
-      options.tableName = 'SpotImages';
-      await queryInterface.addColumn(options, 'spotId', {
-        type: Sequelize.INTEGER,
-        references: { model: 'Spots' },
-        onDelete: 'cascade',
-        allowNull: false
-      });
-    // };
 
-    
-    
-    // const reviewsTable = await queryInterface.describeTable('Reviews');
+    options.tableName = 'SpotImages';
+    await queryInterface.addColumn(options, 'spotId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Spots' },
+      onDelete: 'cascade',
+      allowNull: false
+    });
 
-    // if(!reviewsTable.spotId && !reviewsTable.userId){
-      options.tableName = 'Reviews';
-      await queryInterface.addColumn(options, 'spotId', {
-        type: Sequelize.INTEGER,
-        references: { model: 'Spots' },
-        onDelete: 'cascade',
-        allowNull: false
-      });
-      await queryInterface.addColumn(options, 'userId', {
-        type: Sequelize.INTEGER,
-        references: { model: 'Users' },
-        onDelete: 'cascade',
-        allowNull: false
-      });
-    // };
 
-    
-    // const reviewImagesTable = await queryInterface.describeTable('ReviewImages');
-    
-    // if(!reviewImagesTable.reviewId){
-      options.tableName = 'ReviewImages';
-      await queryInterface.addColumn(options, 'reviewId', {
-        type: Sequelize.INTEGER,
-        references: { model: 'Reviews' }
-      });
-    // };
-    
+    options.tableName = 'Reviews';
+    await queryInterface.addColumn(options, 'spotId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Spots' },
+      onDelete: 'cascade',
+      allowNull: false
+    });
+    await queryInterface.addColumn(options, 'userId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Users' },
+      onDelete: 'cascade',
+      allowNull: false
+    });
+
+    options.tableName = 'ReviewImages';
+    await queryInterface.addColumn(options, 'reviewId', {
+      type: Sequelize.INTEGER,
+      references: { model: 'Reviews' }
+    });
   },
   async down (queryInterface, Sequelize) {
     /**
@@ -81,8 +64,8 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    // options.tableName = 'Spots';
-    await queryInterface.removeColumn('Spots', 'ownerId');
+    options.tableName = 'Spots';
+    await queryInterface.removeColumn(options, 'ownerId');
 
     // options.tableName = 'SpotImages';
     await queryInterface.removeColumn('SpotImages', 'spotId');
