@@ -13,10 +13,12 @@ const userId = req.user.id;
 const bookings = await Booking.findAll ({
     where: { userId },
     include: {
-        model: Spot, // Assuming Spot is a defined model
+        model: Spot,
         attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price']
     }
 });
 return res.status(200).json(bookings)
 
 })
+
+module.exports = router;

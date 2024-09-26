@@ -1,24 +1,12 @@
 'use strict';
-<<<<<<< .merge_file_GSMD9N
-=======
-
-const { Spot } = require('../models');
-
-
->>>>>>> .merge_file_NaeqYQ
 /** @type {import('sequelize-cli').Migration} */
 
 const { Spot } = require('../models');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-<<<<<<< .merge_file_GSMD9N
   options.schema = process.env.SCHEMA;
 };
-=======
-  options.schema = process.env.SCHEMA; 
-}
->>>>>>> .merge_file_NaeqYQ
 
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -72,11 +60,7 @@ module.exports = {
         price: 175
       },
       {
-<<<<<<< .merge_file_GSMD9N
         ownerId: 2,
-=======
-        ownerId: 3,
->>>>>>> .merge_file_NaeqYQ
         address: "202 Oak Lane",
         city: "Houston",
         state: "Texas",

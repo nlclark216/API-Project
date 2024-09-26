@@ -5,11 +5,7 @@ const bcrypt = require("bcryptjs");
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-<<<<<<< .merge_file_Q3VYwA
   options.schema = process.env.SCHEMA;
-=======
-  options.schema = process.env.SCHEMA;  
->>>>>>> .merge_file_4lZsLS
 };
 
 module.exports = {

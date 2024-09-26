@@ -3,11 +3,6 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Booking extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       // Define associations
       Booking.belongsTo(models.Spot, { foreignKey: 'spotId' });
@@ -40,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Booking',
-    timestamps: true, // Automatically manage createdAt and updatedAt fields
+    timestamps: true, 
   });
 
   return Booking;
