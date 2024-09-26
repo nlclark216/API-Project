@@ -11,6 +11,17 @@ const { Review, Spot, ReviewImage, User } = require('../../db/models')
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
+const validateReview = [
+    check('review')
+    .exists({checkFalsy: true})
+    .isString()
+    .notEmpty()
+    .withMessage('Review text is required'),
+    check('stars')
+    .isInt({min: 1, max: 5})
+    .withMessage('Stars must be an integer from 1 to 5'),
+    handleValidationErrors
+]
 router.get('/current', requireAuth, async (req, res) => {
     const { user } = req;
 
@@ -23,6 +34,25 @@ router.get('/current', requireAuth, async (req, res) => {
     res.json(reviews)
 })
 
+router.put('/:reviewId', validateReview, requireAuth, async (req, res) => {
+    const {review,stars} = req.body;
+    const {reviewId} = req.params;
+
+    const findReview = await Review.findByPk(reviewId);
+    await findReview.update({
+        review:review,
+        stars:stars
+    });
+    return res.json(findReview);
+})
+router.delete('/:reviewId', requireAuth, async (req, res) => {
+    const {reviewId} = req.params;
+    const existingReview = await Review.findByPk(reviewId);
+    if (!existingReview) {return res.status(404).json({message: "Review couldn't be found"})}
+    existingReview.destroy();
+    return res.status(200).json({message: "Successfully deleted"});
+
+})
 
 router.post('/:reviewId/images', requireAuth, async (req, res) => {
     const { reviewId } = req.params;
@@ -34,9 +64,9 @@ router.post('/:reviewId/images', requireAuth, async (req, res) => {
         return res.status(404).json({ message: "Review couldn't be found" });
     }
 
-    if (review.userId !== req.user.id) {
-        return res.status(403).json({ message: "Forbidden" });
-    }
+    // if (review.userId !== req.user.id) {
+    //     return res.status(403).json({ message: "Forbidden" });
+    // }
 
     const images = await ReviewImage.findAll({
         where: { reviewId: reviewId }
