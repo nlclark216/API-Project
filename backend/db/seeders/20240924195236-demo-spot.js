@@ -1,14 +1,12 @@
 'use strict';
-
-const { Spot } = require('../models')
-
-
 /** @type {import('sequelize-cli').Migration} */
+
+const { Spot } = require('../models');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  // define your schema in options object
-}
+  options.schema = process.env.SCHEMA;
+};
 
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -50,7 +48,7 @@ module.exports = {
         price: 200
       },
       {
-        ownerId: 1,
+        ownerId: 2,
         address: "101 Pine Street",
         city: "Chicago",
         state: "Illinois",
@@ -62,7 +60,7 @@ module.exports = {
         price: 175
       },
       {
-        ownerId: 1,
+        ownerId: 2,
         address: "202 Oak Lane",
         city: "Houston",
         state: "Texas",
@@ -74,7 +72,7 @@ module.exports = {
         price: 130
       },
       {
-        ownerId: 1,
+        ownerId: 3,
         address: "303 Birch Road",
         city: "Miami",
         state: "Florida",
