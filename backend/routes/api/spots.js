@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 
 const { requireAuth } = require('../../utils/auth');
 
-const { Spot, SpotImage, Review } = require('../../db/models');
+const { Spot, SpotImage, Review, Booking } = require('../../db/models');
 
 const router = express.Router();
 
@@ -252,7 +252,39 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
   return res.status(201).json(newReview);
 });
 
+//Get All Bookings Based on SpotId
+router.get('/:spotId/bookings', requireAuth, async (req, res) => {
+const {spotId} = req.params;
+const userId = req.user.id;
 
+const spot = await Spot.findByPk(spotId);
+if(!spot){return res.status(404).json({"message": "Spot couldn't be found"});}
+const bookings = await Booking.findAll({where: {spotId}});
+if (spot.ownerId === userId){
+const userBookings = bookings.map (booking => ({
+  User: {
+    id: booking.userId,
+    firstName: booking.user.firstName,
+    lastName: booking.user.lastName
+  },
+  id:booking.id,
+  spotId: booking.spotId,
+  userId:booking.userId,
+  startDate: booking.startDate,
+  endDate: booking.endDate,
+  createdAt: booking.createdAt,
+  updatedAt: booking.updatedAt
+}));
+return res.status(200).json(userBookings);
+}else {
+  const simpleBookings = bookings.map(booking => ({
+    spotId: booking.spotId,
+    startDate: booking.startDate,
+    endDate: booking.endDate
+  }));
+  return res.status(200).json(simpleBookings);
+}
+})
 
 
 
