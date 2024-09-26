@@ -18,36 +18,36 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
 
-    const spotsTable = await queryInterface.describeTable('Spots');
+    // const spotsTable = await queryInterface.describeTable('Spots');
     
 
-    if (!spotsTable.ownerId) {
+    // if (!spotsTable.ownerId) {
       options.tableName = 'Spots';
       await queryInterface.addColumn(options, 'ownerId', {
         type: Sequelize.INTEGER,
         references: { model: 'Users' },
         onDelete: 'cascade',
         allowNull: false
-      })
-    };
+      });
+    // };
 
-    const spotImagesTable = await queryInterface.describeTable('SpotImages');
+    // const spotImagesTable = await queryInterface.describeTable('SpotImages');
 
-    if(!spotImagesTable.spotId){
+    // if(!spotImagesTable.spotId){
       options.tableName = 'SpotImages';
       await queryInterface.addColumn(options, 'spotId', {
         type: Sequelize.INTEGER,
         references: { model: 'Spots' },
         onDelete: 'cascade',
         allowNull: false
-      })
-    };
+      });
+    // };
 
     
     
-    const reviewsTable = await queryInterface.describeTable('Reviews');
+    // const reviewsTable = await queryInterface.describeTable('Reviews');
 
-    if(!reviewsTable.spotId && !reviewsTable.userId){
+    // if(!reviewsTable.spotId && !reviewsTable.userId){
       options.tableName = 'Reviews';
       await queryInterface.addColumn(options, 'spotId', {
         type: Sequelize.INTEGER,
@@ -60,19 +60,19 @@ module.exports = {
         references: { model: 'Users' },
         onDelete: 'cascade',
         allowNull: false
-      })
-    }
+      });
+    // };
 
     
-    const reviewImagesTable = await queryInterface.describeTable('ReviewImages');
+    // const reviewImagesTable = await queryInterface.describeTable('ReviewImages');
     
-    if(!reviewImagesTable.reviewId){
+    // if(!reviewImagesTable.reviewId){
       options.tableName = 'ReviewImages';
       await queryInterface.addColumn(options, 'reviewId', {
         type: Sequelize.INTEGER,
         references: { model: 'Reviews' }
-      })
-    }
+      });
+    // };
     
   },
 
