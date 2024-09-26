@@ -3,6 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 
 let options = {};
+options.tableName = 'Spots'
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 };
@@ -18,42 +19,61 @@ module.exports = {
      */
 
     const spotsTable = await queryInterface.describeTable('Spots');
+    
 
     if (!spotsTable.ownerId) {
-      await queryInterface.addColumn('Spots', 'ownerId', {
+      options.tableName = 'Spots';
+      await queryInterface.addColumn(options, 'ownerId', {
         type: Sequelize.INTEGER,
         references: { model: 'Users' },
         onDelete: 'cascade',
         allowNull: false
-      }, options)
+      })
+    };
+
+    const spotImagesTable = await queryInterface.describeTable('SpotImages');
+
+    if(!spotImagesTable.spotId){
+      options.tableName = 'SpotImages';
+      await queryInterface.addColumn(options, 'spotId', {
+        type: Sequelize.INTEGER,
+        references: { model: 'Spots' },
+        onDelete: 'cascade',
+        allowNull: false
+      })
+    };
+
+    
+    
+    const reviewsTable = await queryInterface.describeTable('Reviews');
+
+    if(!reviewsTable.spotId && !reviewsTable.userId){
+      options.tableName = 'Reviews';
+      await queryInterface.addColumn(options, 'spotId', {
+        type: Sequelize.INTEGER,
+        references: { model: 'Spots' },
+        onDelete: 'cascade',
+        allowNull: false
+      });
+      await queryInterface.addColumn(options, 'userId', {
+        type: Sequelize.INTEGER,
+        references: { model: 'Users' },
+        onDelete: 'cascade',
+        allowNull: false
+      })
     }
 
-
-    await queryInterface.addColumn('SpotImages', 'spotId', {
-      type: Sequelize.INTEGER,
-      references: { model: 'Spots' },
-      onDelete: 'cascade',
-      allowNull: false
-    }, options)
-
-    await queryInterface.addColumn('Reviews', 'spotId', {
-      type: Sequelize.INTEGER,
-      references: { model: 'Spots' },
-      onDelete: 'cascade',
-      allowNull: false
-    }, options)
-
-    await queryInterface.addColumn('Reviews', 'userId', {
-      type: Sequelize.INTEGER,
-      references: { model: 'Users' },
-      onDelete: 'cascade',
-      allowNull: false
-    }, options)
-
-    await queryInterface.addColumn('ReviewImages', 'reviewId', {
-      type: Sequelize.INTEGER,
-      references: { model: 'Reviews' }
-    }, options)
+    
+    const reviewImagesTable = await queryInterface.describeTable('ReviewImages');
+    
+    if(!reviewImagesTable.reviewId){
+      options.tableName = 'ReviewImages';
+      await queryInterface.addColumn(options, 'reviewId', {
+        type: Sequelize.INTEGER,
+        references: { model: 'Reviews' }
+      })
+    }
+    
   },
 
 
@@ -65,16 +85,20 @@ module.exports = {
      * await queryInterface.dropTable('users');
      */
     options.tableName = 'Spots';
-    await queryInterface.removeColumn(options);
+    await queryInterface.removeColumn(options, 'ownerId');
+
     options.tableName = 'SpotImages';
-    await queryInterface.removeColumn(options);
+    await queryInterface.removeColumn(options, 'spotId');
     // await queryInterface.removeColumn('SpotImages', 'spotId');
+
     options.tableName = 'Reviews';
-    await queryInterface.removeColumn(options);
+    await queryInterface.removeColumn(options, 'spotId');
+    await queryInterface.removeColumn(options, 'userId');
     // await queryInterface.removeColumn('Reviews', 'spotId');
     // await queryInterface.removeColumn('Reviews', 'userId');
+
     options.tableName = 'ReviewImages';
-    await queryInterface.removeColumn(options);
+    await queryInterface.removeColumn(options, 'reviewId');
     // await queryInterface.removeColumn('ReviewImages', 'reviewId');
   }
 };
