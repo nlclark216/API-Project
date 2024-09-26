@@ -6,6 +6,8 @@ const router = express.Router();
 const { Booking, Spot } = require('../../db/models')
 
 
+
+
 //Get Current User Bookings
 
 router.get('/', requireAuth, async (req, res) => {

@@ -70,8 +70,29 @@ const requireAuth = function (req, _res, next) {
     err.status = 401;
     return next(err);
   }
+//booking date validator
+
+  const validateBookingDates = (startDate, endDate) => {
+    const errors = {};
+    const today = new Date();
+
+    // Convert input dates to Date objects
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Check if start date is in the past
+    if (start < today) {
+        errors.startDate = "Start date must be in the future.";
+    }
+
+    // Check if end date is before start date
+    if (end <= start) {
+        errors.endDate = "End date must be after start date.";
+    }
+
+    // Return errors if any
+    return Object.keys(errors).length ? errors : null;
+}
 
 
-
-
-module.exports = { setTokenCookie, restoreUser, requireAuth };
+module.exports = { setTokenCookie, restoreUser, requireAuth, validateBookingDates};
