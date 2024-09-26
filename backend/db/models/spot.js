@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Spot.init({
+    ownerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      foreignKey: true
+    },
     address: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -80,11 +85,6 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isNumeric: true,
       }
-    },
-    ownerId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      foreignKey: true
     },
   }, {
     sequelize,

@@ -3,7 +3,6 @@
 /** @type {import('sequelize-cli').Migration} */
 
 let options = {};
-options.tableName = 'Spots'
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 };
@@ -75,8 +74,6 @@ module.exports = {
     // };
     
   },
-
-
   async down (queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
@@ -84,20 +81,20 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    options.tableName = 'Spots';
+    // options.tableName = 'Spots';
     await queryInterface.removeColumn(options, 'ownerId');
 
-    options.tableName = 'SpotImages';
+    // options.tableName = 'SpotImages';
     await queryInterface.removeColumn(options, 'spotId');
     // await queryInterface.removeColumn('SpotImages', 'spotId');
 
-    options.tableName = 'Reviews';
+    // options.tableName = 'Reviews';
     await queryInterface.removeColumn(options, 'spotId');
     await queryInterface.removeColumn(options, 'userId');
     // await queryInterface.removeColumn('Reviews', 'spotId');
     // await queryInterface.removeColumn('Reviews', 'userId');
 
-    options.tableName = 'ReviewImages';
+    // options.tableName = 'ReviewImages';
     await queryInterface.removeColumn(options, 'reviewId');
     // await queryInterface.removeColumn('ReviewImages', 'reviewId');
   }
