@@ -52,6 +52,12 @@ npx sequelize model:generate --name SpotImage --attributes spotId:integer,url:st
 npx sequelize model:generate --name Review --attributes spotId:integer,review:string,stars:integer
 npx sequelize model:generate --name ReviewImage --attributes url:string
 
+
+//create associations
+
+npx sequelize migration:generate --name review-association
+
+
 // generate demo-spot seeder
 npx sequelize seed:generate --name demo-spot
 
