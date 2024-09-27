@@ -71,7 +71,10 @@ module.exports = (sequelize, DataTypes) => {
           }
       },
       isOwner(id) { 
-      },
+        return {
+            where: { id },
+        };
+    },
   
   }
   });

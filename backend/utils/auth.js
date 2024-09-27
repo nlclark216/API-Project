@@ -72,10 +72,10 @@ const requireAuth = function (req, _res, next) {
 }
 
 const authorize = async function (req, _res, next) {
-  // find spot with scope isOwner
-  const user = await User.scope('isOwner').findAll();
-  console.log(user)
-  if (user) return next();
+  const userId = req.user.id;
+  const user = await User.scope({ method: ['isOwner', userId] }).findAll();
+  console.log(user);
+  if (user.length > 0) return next();
 
   const err = new Error('Forbidden');
   err.title = 'Forbidden';
