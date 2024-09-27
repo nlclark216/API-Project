@@ -55,7 +55,7 @@ const validateSpot = [
     handleValidationErrors
 ];
 
-router.post('/',validateSpot, async (req, res) => {
+router.post('/', requireAuth, validateSpot, async (req, res) => {
     const {address, city, state, country, 
         lat, lng, name, description, price } = req.body;
 
@@ -75,7 +75,9 @@ router.post('/',validateSpot, async (req, res) => {
         lng: spot.lng, 
         name: spot.name, 
         description: spot.description, 
-        price: spot.price
+        price: spot.price,
+        createdAt: spot.createdAt,
+        updatedAt: spot.updatedAt
     };
 
     return res.json({ spot: validSpot });
@@ -83,9 +85,6 @@ router.post('/',validateSpot, async (req, res) => {
 
 router.get('/', async (req, res) => {
     const spots = await Spot.findAll();
-
-    // if(!spots){}
-
     return res.json({Spots: spots})
 });
 
@@ -105,8 +104,9 @@ router.get('/:spotId', async (req, res) => {
     return res.json(spot);
 });
 
-router.post('/:spotId/images', async (req, res) => {
+router.post('/:spotId/images', requireAuth, async (req, res) => {
     const spot = await Spot.findByPk(req.params.spotId);
+   
 
     if(!spot){
       return res.status(404).json({
@@ -114,17 +114,22 @@ router.post('/:spotId/images', async (req, res) => {
       })
     };
 
-    const { url, preview } = req.body;
-    const img = await SpotImage.create({
-      url: url,
-      preview: preview,
-      spotId: spot.id
-    });
-    
-    return res.json({
-      id: img.id,
-      url: img.url,
-      preview: img.preview
+    const { user } = req;
+
+    if(user.id === spot.ownerId){
+      const { url, preview } = req.body;
+      const img = await SpotImage.create({
+        url: url,
+        preview: preview,
+        spotId: spot.id
+      });
+      return res.status(201).json({
+        id: img.id,
+        url: img.url,
+        preview: img.preview
+      });
+    } else res.status(401).json({
+      message: 'Spot does not belong to user'
     });
 });
 
