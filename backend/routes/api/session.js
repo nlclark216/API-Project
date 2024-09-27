@@ -8,26 +8,24 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+const { check } = require('express-validator');
+const { handleValidationErrors } = require('../../utils/validation');
+
+const validateLogin = [
+  check('credential')
+    .exists({ checkFalsy: true })
+    .withMessage("Email or username is required"),
+  check('password')
+    .exists({ checkFalsy: true })
+    .withMessage("Password is required"),
+  check('password'),
+    handleValidationErrors
+];
+
 // Log in
-router.post(
-    '/',
-    async (req, res, next) => {
+router.post('/', validateLogin, async (req, res, next) => {
       const { credential, password } = req.body;
 
-      if(!credential){
-        const err = new Error("Validation error");
-        err.status = 400;
-        err.errors = { "credential": "Email or username is required" };
-        return next(err);
-      }
-
-      if(!password){
-        const err = new Error("Validation error");
-        err.status = 400;
-        err.errors = { "password": "Password is required" };
-        return next(err);
-      }
-  
       const user = await User.unscoped().findOne({
         where: {
           [Op.or]: {
@@ -36,13 +34,12 @@ router.post(
           }
         }
       });
-  
-      if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
-        const err = new Error('Login failed');
-        err.status = 401;
-        err.title = 'Login failed';
-        err.errors = { "message": "Invalid credentials" };
-        return next(err.errors);
+
+      const findPass = await User.scope({ method: ["checkPassword", credential] }).findOne();
+      const isSame = bcrypt.compareSync(password, findPass.hashedPassword);
+
+      if (!user || !isSame) {
+        return res.status(401).json({ message: "Invalid credentials" });
       }
   
       const safeUser = {

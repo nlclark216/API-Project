@@ -60,6 +60,16 @@ module.exports = (sequelize, DataTypes) => {
         exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
       },
     },
+    scopes: {
+      checkPassword(email) {
+          return {
+              where: { email }, 
+              attributes: { 
+                  include: [ "hashedPassword" ]
+              }
+          }
+      }
+  }
   });
   return User;
 };
