@@ -71,8 +71,9 @@ const requireAuth = function (req, _res, next) {
     return next(err);
 };
 
-const authorize = function (req, _res, next) {
-  if (req.user) return next();
+const authorize = async function (req, _res, next) {
+  const user = await User.scope('isOwner').findAll();
+  if (user) return next();
 
   const err = new Error('Forbidden');
   err.title = 'Forbidden';
