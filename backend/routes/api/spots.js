@@ -126,7 +126,7 @@ router.post('/:spotId/images', requireAuth, spotAuth, async (req, res) => {
     });
 });
 
-router.put('/:spotId', requireAuth, validateSpot, async (req, res) => {
+router.put('/:spotId', requireAuth, spotAuth, validateSpot, async (req, res) => {
   const { address, city, state, country, lat, lng, name, description, price } = req.body;
 
   const spot = await Spot.findByPk(req.params.spotId);
@@ -157,7 +157,7 @@ router.put('/:spotId', requireAuth, validateSpot, async (req, res) => {
   )}
 });
 
-router.delete('/:spotId', requireAuth, async (req, res) => {
+router.delete('/:spotId', requireAuth, spotAuth, async (req, res) => {
   const spotId = req.params.spotId;
   const spot  = await Spot.findByPk(spotId);
   const { user } = req;
@@ -182,7 +182,7 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
   }
 });
 
-router.get('/:spotId/reviews', requireAuth, async (req, res) => {
+router.get('/:spotId/reviews', async (req, res) => {
     const { spotId } = req.params;
 
     const review = await Review.findAll({

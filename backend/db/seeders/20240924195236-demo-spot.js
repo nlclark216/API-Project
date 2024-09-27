@@ -60,7 +60,7 @@ module.exports = {
         price: 175
       },
       {
-        ownerId: 2,
+        ownerId: 3,
         address: "202 Oak Lane",
         city: "Houston",
         state: "Texas",

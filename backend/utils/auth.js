@@ -76,6 +76,8 @@ const spotAuth = async function (req, _res, next) {
     id: req.params.spotId
   }});
 
+  if(spot === null) return next();
+
   if (spot.ownerId === req.user.id) return next();
 
   const err = new Error('Forbidden');
