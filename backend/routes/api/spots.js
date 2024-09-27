@@ -2,7 +2,7 @@ const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, authorize } = require('../../utils/auth');
 
 const { Spot, SpotImage, Review } = require('../../db/models');
 
@@ -55,7 +55,7 @@ const validateSpot = [
     handleValidationErrors
 ];
 
-router.post('/',validateSpot, async (req, res) => {
+router.post('/', validateSpot, requireAuth, async (req, res) => {
     const {address, city, state, country, 
         lat, lng, name, description, price } = req.body;
 
@@ -84,8 +84,6 @@ router.post('/',validateSpot, async (req, res) => {
 router.get('/', async (req, res) => {
     const spots = await Spot.findAll();
 
-    // if(!spots){}
-
     return res.json({Spots: spots})
 });
 
@@ -105,7 +103,7 @@ router.get('/:spotId', async (req, res) => {
     return res.json(spot);
 });
 
-router.post('/:spotId/images', async (req, res) => {
+router.post('/:spotId/images', requireAuth, authorize, async (req, res) => {
     const spot = await Spot.findByPk(req.params.spotId);
 
     if(!spot){
