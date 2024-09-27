@@ -2,7 +2,7 @@ const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, authorize } = require('../../utils/auth');
 
 const { Spot, SpotImage, Review } = require('../../db/models');
 
@@ -17,41 +17,41 @@ const validateSpot = [
     .isLength({min: 2})
     .withMessage("Street address is required"),
   check('city')
-  .exists({checkFalsy: true})
-  .isLength({min: 2})
-  .withMessage("City is required"),
+    .exists({checkFalsy: true})
+    .isLength({min: 2})
+    .withMessage("City is required"),
   check('state')
-  .exists({checkFalsy: true})
-  .isLength({min: 2})
-  .withMessage("State is required"),
-    check('country')
-  .exists({checkFalsy: true})
-  .isLength({min: 2})
-  .withMessage( "Country is required"),
+    .exists({checkFalsy: true})
+    .isLength({min: 2})
+    .withMessage("State is required"),
+  check('country')
+    .exists({checkFalsy: true})
+    .isLength({min: 2})
+    .withMessage( "Country is required"),
   check('lat')
-  .exists({checkFalsy: true})
-  .isFloat({
-    min: -90,
-    max: 90})
-  .withMessage("Latitude must be within -90 and 90"),
+    .exists({checkFalsy: true})
+    .isFloat({
+      min: -90,
+      max: 90})
+    .withMessage("Latitude must be within -90 and 90"),
   check('lng')
-  .exists({checkFalsy: true})
-  .isFloat({
-    min: -180,
-    max: 180})
-  .withMessage("Longitude must be within -180 and 180"),
+    .exists({checkFalsy: true})
+    .isFloat({
+      min: -180,
+      max: 180})
+    .withMessage("Longitude must be within -180 and 180"),
   check('name')
-  .exists({checkFalsy: true})
-  .isLength({max: 50})
-  .withMessage("Name must be less than 50 characters"),
+    .exists({checkFalsy: true})
+    .isLength({max: 50})
+    .withMessage("Name must be less than 50 characters"),
   check('description')
-  .exists({checkFalsy: true})
-  .isLength({min: 1})
-  .withMessage("Description is required"),
+    .exists({checkFalsy: true})
+    .isLength({min: 1})
+    .withMessage("Description is required"),
   check('price')
-  .exists({checkFalsy: true})
- .isFloat({ min: 0})
-  .withMessage("Price per day must be a positive number"),
+    .exists({checkFalsy: true})
+    .isFloat({ min: 0})
+    .withMessage("Price per day must be a positive number"),
     handleValidationErrors
 ];
 
@@ -104,7 +104,7 @@ router.get('/:spotId', async (req, res) => {
     return res.json(spot);
 });
 
-router.post('/:spotId/images', requireAuth, async (req, res) => {
+router.post('/:spotId/images', authorize, requireAuth, async (req, res) => {
     const spot = await Spot.findByPk(req.params.spotId);
    
 
@@ -128,9 +128,10 @@ router.post('/:spotId/images', requireAuth, async (req, res) => {
         url: img.url,
         preview: img.preview
       });
-    } else res.status(401).json({
-      message: 'Spot does not belong to user'
-    });
+    } 
+    // else res.status(401).json({
+    //   message: 'Spot does not belong to user'
+    // });
 });
 
 router.put('/:spotId', requireAuth, validateSpot, async (req, res) => {
