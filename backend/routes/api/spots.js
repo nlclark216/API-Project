@@ -2,7 +2,7 @@ const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-const { requireAuth, authorize } = require('../../utils/auth');
+const { requireAuth, spotAuth } = require('../../utils/auth');
 
 const { Spot, SpotImage, Review } = require('../../db/models');
 
@@ -103,7 +103,7 @@ router.get('/:spotId', async (req, res) => {
     return res.json(spot);
 });
 
-router.post('/:spotId/images', requireAuth, authorize, async (req, res) => {
+router.post('/:spotId/images', requireAuth, spotAuth, async (req, res) => {
     const spot = await Spot.findByPk(req.params.spotId);
 
     if(!spot){

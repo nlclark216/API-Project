@@ -1,6 +1,5 @@
 'use strict';
 const { Model, Validator } = require('sequelize');
-const { Op } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -69,12 +68,6 @@ module.exports = (sequelize, DataTypes) => {
                   include: [ "hashedPassword" ]
               }
           }
-      },
-      isOwner(ownerId) {
-        const { Spot } = require('../models');
-        return {
-            where: { ownerId }, include: { model: Spot }
-        }
       }
   }
   });
