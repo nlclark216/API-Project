@@ -87,7 +87,7 @@ router.post('/', validateSpot, requireAuth, async (req, res) => {
 router.get('/', async (req, res) => {
     const spots = await Spot.findAll();
 
-    return res.json({Spots: spots})
+    return res.json({Spots: spots});
 });
 
 router.get('/current', requireAuth, async (req, res) => {
@@ -108,12 +108,6 @@ router.get('/:spotId', async (req, res) => {
 
 router.post('/:spotId/images', requireAuth, spotAuth, async (req, res) => {
     const spot = await Spot.findByPk(req.params.spotId);
-
-    if(!spot){
-      return res.status(404).json({
-        "message": "Spot couldn't be found"
-      })
-    };
 
     const { url, preview } = req.body;
     const img = await SpotImage.create({

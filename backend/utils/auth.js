@@ -114,57 +114,48 @@ const validateBookingDates = async (startDate, endDate, booking) => {
   return Object.keys(errors).length ? errors : null;
 };
 
-// authorize Ownership
-const authorizeBookingOwner = (req, res, next) => {
-const { bookingId } = req.params;
-const userId = req.user.id; // Assuming user ID is stored in req.user
 
-Booking.findByPk(bookingId)
-    .then(booking => {
-        if (!booking) {
-            return res.status(404).json({ message: "Booking couldn't be found" });
-        }
-        if (booking.userId !== userId) {
-            return res.status(403).json({ message: "You are not authorized to edit this booking" });
-        }
-        req.booking = booking; // Attach booking to request for further use
-        next();
-    })
+const spotAuth = async function (req, res, next) {
+  const spot = await Spot.findOne({where: {
+    id: req.params.spotId
+  }});
+
+  if(spot === null) return res.status(404).json({
+    message: "Spot couldn't be found"
+  });
+
+  if (spot.ownerId === req.user.id) return next();
+
+  return res.status(403).json({ message: 'Forbidden' });
 };
 
-  const spotAuth = async function (req, _res, next) {
-    const spot = await Spot.findOne({where: {
-      id: req.params.spotId
-    }});
-  
-    if(spot === null) return next();
-  
-    if (spot.ownerId === req.user.id) return next();
-  
-    const err = new Error('Forbidden');
-    err.title = 'Forbidden';
-    err.errors = { message: 'Forbidden' };
-    err.status = 403;
-    return next(err);
-  };
-  
-  const reviewAuth = async function (req, _res, next) {
-    const review = await Review.findOne({where: {
-      id: req.params.reviewId
-    }});
-  
-    if(review === null) return next();
-  
-    if (review.userId === req.user.id) return next();
-  
-    const err = new Error('Forbidden');
-    err.title = 'Forbidden';
-    err.errors = { message: 'Forbidden' };
-    err.status = 403;
-    return next(err);
-  };
+const reviewAuth = async function (req, _res, next) {
+  const review = await Review.findOne({where: {
+    id: req.params.reviewId
+  }});
+
+  if(review === null) return res.status(404).json({
+    message: "Review couldn't be found"
+  });
+
+  if (review.userId === req.user.id) return next();
+
+  return res.status(403).json({ message: 'Forbidden' });
+};
+
+const bookingAuth = async function (req, res, next) {
+  const booking = await Booking.findOne({where: {
+    id: req.params.bookingId
+  }});
+
+  if(booking === null) return next();
+
+  if (booking.userId === req.user.id) return next();
+
+  return res.status(403).json({ message: 'Forbidden' });
+};
 
 
 
 
-module.exports = { setTokenCookie, restoreUser, requireAuth, authorizeBookingOwner, spotAuth, reviewAuth, validateBookingDates };
+module.exports = { setTokenCookie, restoreUser, requireAuth, spotAuth, reviewAuth, bookingAuth, validateBookingDates };

@@ -51,12 +51,6 @@ router.put('/:reviewId', requireAuth, reviewAuth, validateReview, async (req, re
 
     const findReview = await Review.findByPk(reviewId);
 
-    if(!findReview){
-        return res.status(404).json({
-            message: "Review couldn't be found"
-          });
-    };
-
     await findReview.update({
         review:review,
         stars:stars
