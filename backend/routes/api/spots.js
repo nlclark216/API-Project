@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 
 const { requireAuth, spotAuth } = require('../../utils/auth');
 
-const { Spot, SpotImage, Review } = require('../../db/models');
+const { Spot, SpotImage, Review, User, ReviewImage } = require('../../db/models');
 
 const router = express.Router();
 
@@ -188,7 +188,14 @@ router.get('/:spotId/reviews', async (req, res) => {
     const { spotId } = req.params;
 
     const review = await Review.findAll({
-      where: { spotId: spotId }
+      where: { spotId: spotId },
+      include: [{
+        model: User,
+        attributes: ['id', 'firstName', 'lastName']
+      }, {
+        model: ReviewImage,
+        attributes: ['id', 'url']
+      }]
     })
 
     const spot = await Spot.findByPk(spotId);

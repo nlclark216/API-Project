@@ -27,6 +27,7 @@ router.get('/current', requireAuth, async (req, res) => {
     const { user } = req;
 
     const reviews = await Review.findAll({
+        where: { userId: user.id },
         include: [{ 
             model: User,
             attributes: ['id', 'firstName', 'lastName']
@@ -36,8 +37,7 @@ router.get('/current', requireAuth, async (req, res) => {
         }, { 
             model: ReviewImage ,
             attributes: ['id', 'url']
-        }],
-        where: { userId: user.id }
+        }]
     });
 
     // add function: cannot find spot with specified id
@@ -45,11 +45,18 @@ router.get('/current', requireAuth, async (req, res) => {
     res.json(reviews);
 });
 
-router.put('/:reviewId', requireAuth, validateReview, async (req, res) => {
+router.put('/:reviewId', requireAuth, reviewAuth, validateReview, async (req, res) => {
     const { review, stars } = req.body;
     const { reviewId } = req.params;
 
     const findReview = await Review.findByPk(reviewId);
+
+    if(!findReview){
+        return res.status(404).json({
+            message: "Review couldn't be found"
+          });
+    };
+
     await findReview.update({
         review:review,
         stars:stars
