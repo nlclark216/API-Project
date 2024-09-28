@@ -1,5 +1,5 @@
 const express = require('express');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
 const { requireAuth, spotAuth, validateBookingDates  } = require('../../utils/auth');
@@ -240,36 +240,30 @@ router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) =>
 
 //Get All Bookings Based on SpotId
 router.get('/:spotId/bookings', requireAuth, async (req, res) => {
-const {spotId} = req.params;
-const userId = req.user.id;
+  const {spotId} = req.params;
+  const userId = req.user.id;
 
-const spot = await Spot.findByPk(spotId);
-if(!spot){return res.status(404).json({"message": "Spot couldn't be found"});}
-const bookings = await Booking.findAll({where: {spotId}});
-if (spot.ownerId === userId){
-const userBookings = bookings.map (booking => ({
-  User: {
-    id: booking.userId,
-    firstName: booking.user.firstName,
-    lastName: booking.user.lastName
-  },
-  id:booking.id,
-  spotId: booking.spotId,
-  userId:booking.userId,
-  startDate: booking.startDate,
-  endDate: booking.endDate,
-  createdAt: booking.createdAt,
-  updatedAt: booking.updatedAt
-}));
-return res.status(200).json(userBookings);
-}else {
-  const simpleBookings = bookings.map(booking => ({
-    spotId: booking.spotId,
-    startDate: booking.startDate,
-    endDate: booking.endDate
-  }));
-  return res.status(200).json(simpleBookings);
-}
+  const spot = await Spot.findByPk(spotId);
+
+  if(!spot){return res.status(404).json({"message": "Spot couldn't be found"});};
+
+
+  if (spot.ownerId === userId){
+    const ownerBooking = await Booking.findAll({
+      where: { spotId: userId },
+      include: [{
+        model: User,
+        attributes: ['id', 'firstName', 'lastName']
+      }]
+    });
+  return res.status(200).json(ownerBooking);
+  }else {
+    const simpleBooking = await Booking.findAll({
+      where: { spotId: userId },
+      attributes: { exclude: ['id', 'userId', 'createdAt', 'updatedAt']}
+    });
+    return res.status(200).json(simpleBooking);
+  }
 })
 //Create A Booking Based On spotId
 
