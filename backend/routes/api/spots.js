@@ -11,6 +11,8 @@ const router = express.Router();
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
+const validateReview  = require('./reviews');
+
 const validateSpot = [
   check('address')
     .exists({checkFalsy: true})
@@ -200,7 +202,7 @@ router.get('/:spotId/reviews', async (req, res) => {
     
 });
 
-router.post('/:spotId/reviews', requireAuth, async (req, res) => {
+router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) => {
   const { review, stars } = req.body;
 
   const { spotId } = req.params;
@@ -213,22 +215,6 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
     })
   } 
 
-  if (!review) {
-    return res.status(400).json({ 
-      message: "Bad Request", 
-      errors: { review: "Review text is required" } 
-    });
-  }
-
-  if (!stars) {
-    return res.status(400).json({ 
-      message: "Bad Request", 
-      errors: { 
-        stars: "Stars must be an integer from 1 to 5" 
-      } 
-    });
-  }
-
   const existingReview = await Review.findOne({ 
     where: { userId: req.user.id, 
               spotId: spotId
@@ -236,7 +222,7 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
   });
 
   if (existingReview) {
-      return res.status(500).json({ 
+      return res.status(403).json({ 
         message: "User already has a review for this spot" 
       });
   }

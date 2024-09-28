@@ -22,6 +22,7 @@ const validateReview = [
         .withMessage('Stars must be an integer from 1 to 5'),
     handleValidationErrors
 ]
+
 router.get('/current', requireAuth, async (req, res) => {
     const { user } = req;
 
@@ -98,3 +99,4 @@ router.post('/:reviewId/images', requireAuth, async (req, res) => {
 });
 
 module.exports = router;
+module.exports = validateReview;
