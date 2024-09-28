@@ -1,8 +1,8 @@
 const express = require('express');
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-const { requireAuth, spotAuth, validateBookingDates  } = require('../../utils/auth');
+const { requireAuth, spotAuth, bookingAuth, validateBookingDates  } = require('../../utils/auth');
 
 const { Spot, SpotImage, Review, User, ReviewImage, Booking } = require('../../db/models');
 
@@ -13,6 +13,7 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
 const validateReview  = require('./reviews');
+const validateBooking  = require('./bookings');
 
 const validateSpot = [
   check('address')
@@ -265,17 +266,26 @@ router.get('/:spotId/bookings', requireAuth, async (req, res) => {
     return res.status(200).json(simpleBooking);
   }
 })
-//Create A Booking Based On spotId
 
-router.post('/:spotId/bookings', requireAuth, async (req, res) => {
+//Create A Booking Based On spotId
+router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) => {
+
   const { startDate, endDate } = req.body;
   const spotId = req.params.spotId;
   const userId = req.user.id;
+
   const spot = await Spot.findByPk(spotId);
-  const validationErrors = validateBookingDates(startDate, endDate);
+
+  if (!spot){
+    return res.status(404).json({
+     message: "Spot couldn't be found" });
+  }
+
+  // // const validationErrors = validateBookingDates(startDate, endDate);
+  // this logic currently catches every date: investigate
   const existingBooking = await Booking.findOne({
     where: {
-      spotId,
+      spotId: spotId,
       [Op.or]: [
         {startDate: {[Op.lte]: endDate}},
         {endDate: {[Op.gte]: startDate}}
@@ -283,36 +293,36 @@ router.post('/:spotId/bookings', requireAuth, async (req, res) => {
     }
   })
 
-  if (!spot){
-    return res.status(404).json({
-     message: "Spot couldn't be found" });
-}
-  if (validationErrors){
-    return res.status(400).json({
-    message: "Bad Request", errors: validationErrors });
-}
-if (existingBooking){
-  return res.status(403).json({
-    message: "Sorry, this spot is already booked for the specified dates",
-    errors: {
-        startDate: "Start date conflicts with an existing booking",
-        endDate: "End date conflicts with an existing booking"
-    }
-  });
-}
-const booking = await Booking.create({spotId,userId,startDate,endDate});
+  if (existingBooking){
+    return res.status(403).json({
+      message: "Sorry, this spot is already booked for the specified dates",
+      errors: {
+          startDate: "Start date conflicts with an existing booking",
+          endDate: "End date conflicts with an existing booking"
+      }
+    });
+  }
 
-return res.status(201).json({
-  id: booking.id,
-  spotId: booking.spotId,
-  userId: booking.userId,
-  startDate: booking.startDate,
-  endDate: booking.endDate,
-  createdAt: booking.createdAt,
-  updatedAt: booking.updatedAt
+  if(spot.ownerId !== userId){
+    const booking = await Booking.create({spotId,userId,startDate,endDate});
+
+    return res.status(201).json({
+      id: booking.id,
+      spotId: booking.spotId,
+      userId: booking.userId,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt
+    });
+  }
+
+  // // if (validationErrors){
+  // //   return res.status(400).json({
+  // //   message: "Bad Request", errors: validationErrors });
+  // // }
+
 });
-
-})
   
 
 

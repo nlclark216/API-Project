@@ -2,6 +2,7 @@
 const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
 const { User, Booking, Spot, Review } = require('../db/models');
+const { Op } = require('sequelize');
 
 const { secret, expiresIn } = jwtConfig;
 
@@ -158,4 +159,4 @@ const bookingAuth = async function (req, res, next) {
 
 
 
-module.exports = { setTokenCookie, restoreUser, requireAuth, spotAuth, reviewAuth, bookingAuth, validateBookingDates };
+module.exports = { setTokenCookie, restoreUser, requireAuth, validateBookingDates, spotAuth, reviewAuth, bookingAuth };
