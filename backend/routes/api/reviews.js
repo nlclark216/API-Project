@@ -2,11 +2,11 @@ const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, reviewAuth } = require('../../utils/auth');
 
 const router = express.Router();
 
-const { Review, Spot, ReviewImage, User } = require('../../db/models')
+const { Review, Spot, ReviewImage, User } = require('../../db/models');
 
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
@@ -21,7 +21,7 @@ const validateReview = [
         .isInt({min: 1, max: 5})
         .withMessage('Stars must be an integer from 1 to 5'),
     handleValidationErrors
-]
+];
 
 router.get('/current', requireAuth, async (req, res) => {
     const { user } = req;
@@ -38,16 +38,16 @@ router.get('/current', requireAuth, async (req, res) => {
             attributes: ['id', 'url']
         }],
         where: { userId: user.id }
-    })
+    });
 
     // add function: cannot find spot with specified id
 
-    res.json(reviews)
-})
+    res.json(reviews);
+});
 
-router.put('/:reviewId', validateReview, requireAuth, async (req, res) => {
-    const {review,stars} = req.body;
-    const {reviewId} = req.params;
+router.put('/:reviewId', requireAuth, validateReview, async (req, res) => {
+    const { review, stars } = req.body;
+    const { reviewId } = req.params;
 
     const findReview = await Review.findByPk(reviewId);
     await findReview.update({
@@ -55,7 +55,8 @@ router.put('/:reviewId', validateReview, requireAuth, async (req, res) => {
         stars:stars
     });
     return res.json(findReview);
-})
+});
+
 router.delete('/:reviewId', requireAuth, async (req, res) => {
     const {reviewId} = req.params;
     const existingReview = await Review.findByPk(reviewId);
@@ -63,21 +64,17 @@ router.delete('/:reviewId', requireAuth, async (req, res) => {
     existingReview.destroy();
     return res.status(200).json({message: "Successfully deleted"});
 
-})
+});
 
-router.post('/:reviewId/images', requireAuth, async (req, res) => {
+router.post('/:reviewId/images', requireAuth, reviewAuth, async (req, res) => {
     const { reviewId } = req.params;
     const { url } = req.body;
 
-    const review = await Review.findByPk(reviewId);
+    const targetReview = await Review.findByPk(reviewId);
 
-    if (!review) {
+    if (!targetReview) {
         return res.status(404).json({ message: "Review couldn't be found" });
     }
-
-    // if (review.userId !== req.user.id) {
-    //     return res.status(403).json({ message: "Forbidden" });
-    // }
 
     const images = await ReviewImage.findAll({
         where: { reviewId: reviewId }
@@ -89,14 +86,12 @@ router.post('/:reviewId/images', requireAuth, async (req, res) => {
         });
     }
 
-    const newImage = await review.createReviewImage({ url });
+    const newImage = await targetReview.createReviewImage({ url });
+
     return res.status(201).json({
         id: newImage.id,
         url: newImage.url
-    });
-
-    
+    }); 
 });
 
-module.exports = router;
-module.exports = validateReview;
+module.exports = [ router, validateReview ];
