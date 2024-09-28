@@ -115,21 +115,21 @@ const validateBookingDates = async (startDate, endDate, booking) => {
 
 // authorize Ownership
 const authorizeBookingOwner = (req, res, next) => {
-  const { bookingId } = req.params;
-  const userId = req.user.id; // Assuming user ID is stored in req.user
+const { bookingId } = req.params;
+const userId = req.user.id; // Assuming user ID is stored in req.user
 
-  Booking.findByPk(bookingId)
-      .then(booking => {
-          if (!booking) {
-              return res.status(404).json({ message: "Booking couldn't be found" });
-          }
-          if (booking.userId !== userId) {
-              return res.status(403).json({ message: "You are not authorized to edit this booking" });
-          }
-          req.booking = booking; // Attach booking to request for further use
-          next();
-      })
-  }
+Booking.findByPk(bookingId)
+    .then(booking => {
+        if (!booking) {
+            return res.status(404).json({ message: "Booking couldn't be found" });
+        }
+        if (booking.userId !== userId) {
+            return res.status(403).json({ message: "You are not authorized to edit this booking" });
+        }
+        req.booking = booking; // Attach booking to request for further use
+        next();
+    })
+};
 
   const spotAuth = async function (req, _res, next) {
     const spot = await Spot.findOne({where: {
@@ -166,4 +166,4 @@ const authorizeBookingOwner = (req, res, next) => {
 
 
 
-module.exports = { setTokenCookie, restoreUser, requireAuth, authorizeBookingOwner, spotAuth, reviewAuth };
+module.exports = { setTokenCookie, restoreUser, requireAuth, authorizeBookingOwner, spotAuth, reviewAuth, validateBookingDates };

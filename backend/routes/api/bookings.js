@@ -1,36 +1,24 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
-const { requireAuth, authorizeBookingOwner,validateBookingDates } = require('../../utils/auth');
+const { requireAuth, authorizeBookingOwner } = require('../../utils/auth');
 const router = express.Router();
 const { Booking, Spot } = require('../../db/models')
 
 
+//Get Current User Bookings
 
-
-//GET Current User Bookings
-
-router.get('/', requireAuth, async (req, res) => {
-const userId = req.user.id;
+router.get('/current', requireAuth, async (req, res) => {
+   
 const bookings = await Booking.findAll ({
-    where: { userId },
+    where: { userId: req.user.id },
     include: {
         model: Spot,
-        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price']
+        attributes: {exclude: ['createdAt', 'updatedAt']}
     }
 });
 return res.status(200).json(bookings)
 
 })
 
-//EDIT a booking
-router.put('/:bookingId', requireAuth,authorizeBookingOwner, async(req, res) => {
-    const {startDate, endDate} = req.body;
-    const book = req.booking;
-    const validationErrors = validateBookingDates(startDate, endDate);
-    if (validationErrors){
-        return res.status(400).json({
-        message: "Bad Request", errors: validationErrors });
-    }
-})
 module.exports = router;
