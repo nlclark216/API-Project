@@ -46,7 +46,7 @@ router.get('/current', requireAuth, async (req, res) => {
     return res.status(200).json(bookings);
 })
 //EDIT a booking
-router.put('/:bookingId', requireAuth, authorizeBookingOwner, async (req, res) => {
+router.put('/:bookingId', bookingAuth, requireAuth, async (req, res) => {
     const { startDate, endDate } = req.body;
     const bookingId = req.params.bookingId;
     const booking = await Booking.findByPk(bookingId);
