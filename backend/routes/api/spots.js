@@ -97,14 +97,16 @@ router.get('/', async (req, res) => {
       },
       include: [
         {
-          model: Review, 
-          attributes: []
+            model: Review,
+            attributes: []
         },
         {
-          model: SpotImage,
-          attributes: []
+            model: SpotImage,
+            attributes: ['url'],
+            where: { preview: true },
+            required: false
         }
-      ],
+    ],
       group: ['Spot.id', 'SpotImages.url'] 
     });
 
