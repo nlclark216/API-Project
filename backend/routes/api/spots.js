@@ -87,48 +87,49 @@ router.post('/', validateSpot, requireAuth, async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-    const spots = await Spot.findAll({
-      attributes: {
-        include: [
-          // [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
-          [Sequelize.col('SpotImages.url'), 'previewImage']
-        ]
-      },
+  const spots = await Spot.findAll({
+    attributes: {
       include: [
-        {
-          model: Review, 
-          attributes: ['stars']
-        },
-        {
-          model: SpotImage,
-          attributes: ['url', 'preview']
-        }
-      ],
-      group: ['Spot.id', 'SpotImages.url'] 
-    });
+        [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
+        [Sequelize.col('SpotImages.url'), 'previewImage']
 
-    // Format the response
-    const formattedSpots = spots.map(spot => ({
-      id: spot.id,
-      ownerId: spot.ownerId,
-      address: spot.address,
-      city: spot.city,
-      state: spot.state,
-      country: spot.country,
-      lat: spot.lat,
-      lng: spot.lng,
-      name: spot.name,
-      description: spot.description,
-      price: spot.price,
-      createdAt: spot.createdAt,
-      updatedAt: spot.updatedAt,
-      avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
-      previewImage: spot.get('previewImage') || null
-    }));
-  
-    return res.status(200).json({
-      Spots: formattedSpots});
-    // return res.json({Spots: spots});
+      ]
+    },
+    include: [
+      {
+        model: Review, 
+        attributes: []
+      },
+      {
+        model: SpotImage,
+        attributes: []
+      }
+    ],
+    group: ['Spot.id', 'SpotImages.url'] 
+  });
+
+  // Format the response
+  const formattedSpots = spots.map(spot => ({
+    id: spot.id,
+    ownerId: spot.ownerId,
+    address: spot.address,
+    city: spot.city,
+    state: spot.state,
+    country: spot.country,
+    lat: spot.lat,
+    lng: spot.lng,
+    name: spot.name,
+    description: spot.description,
+    price: spot.price,
+    createdAt: spot.createdAt,
+    updatedAt: spot.updatedAt,
+    avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
+    previewImage: spot.get('previewImage') || null
+  }));
+
+  return res.status(200).json({
+    Spots: formattedSpots});
+  // return res.json({Spots: spots});
 });
 
 router.get('/current', requireAuth, async (req, res) => {
