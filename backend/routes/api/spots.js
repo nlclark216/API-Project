@@ -118,6 +118,13 @@ router.get('/current', requireAuth, async (req, res) => {
           attributes: ['stars']
         }]
     })
+
+
+    // const sum = await Review.sum('stars');
+    // if(sum.userId === user.id){
+    //   console.log('SUM!!!', sum)
+    // }
+    
     return res.json(spot);
 });
 
