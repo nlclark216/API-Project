@@ -19,9 +19,6 @@ const validateBooking = [
             }
         }),
     check('endDate')
-        .isAfter(currentDate)
-        .withMessage("Past bookings can't be modified."),
-    check('endDate')
         .custom(async (value, {req}) => {
             if(value <= req.body.startDate){
                 throw new Error('endDate cannot be on or before startDate');
@@ -53,8 +50,17 @@ router.put('/:bookingId', requireAuth, bookingAuth, validateBooking, async (req,
         return res.status(404).json({
             "message": "Booking couldn't be found"
           })
-    }
-    const { startDate, endDate } = req.body;
+    };
+    
+    const { endDate, startDate } = booking;
+    const end = new Date(endDate).toISOString();
+    const current = new Date(currentDate).toISOString();
+
+    if(end <= current){
+        return res.status(403).json({
+            "message": "Past bookings can't be modified"
+          });
+    };
 
     const existingBooking = await Booking.findOne({
     where: {
@@ -63,6 +69,7 @@ router.put('/:bookingId', requireAuth, bookingAuth, validateBooking, async (req,
       endDate: {[Op.gte]: startDate}
         }
     });
+    
 
     if (existingBooking){
         return res.status(403).json({
@@ -73,6 +80,8 @@ router.put('/:bookingId', requireAuth, bookingAuth, validateBooking, async (req,
           }
         });
     };
+    
+    if(booking.endDate <= currentDate){}
 
 
     booking.startDate = startDate,
@@ -96,7 +105,7 @@ router.delete('/:bookingId', requireAuth, bookingAuth, async (req, res) => {
 
     const { startDate } = booking;
     const start = new Date(startDate).toISOString();
-    const current = new Date(currentDate).toISOString()
+    const current = new Date(currentDate).toISOString();
 
     if(start === current){
         return res.status(403).json({

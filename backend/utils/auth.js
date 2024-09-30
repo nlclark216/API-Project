@@ -86,7 +86,7 @@ const spotAuth = async function (req, res, next) {
   return res.status(403).json({ message: 'Forbidden' });
 };
 
-const reviewAuth = async function (req, _res, next) {
+const reviewAuth = async function (req, res, next) {
   const review = await Review.findOne({where: {
     id: req.params.reviewId
   }});
