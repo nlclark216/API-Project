@@ -1,7 +1,7 @@
 // backend/utils/auth.js
 const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
-const { User, Booking, Spot, Review } = require('../db/models');
+const { User, Booking, Spot, SpotImage, Review } = require('../db/models');
 const { Op } = require('sequelize');
 
 const { secret, expiresIn } = jwtConfig;
@@ -72,6 +72,7 @@ const requireAuth = function (req, _res, next) {
 }
 
 const spotAuth = async function (req, res, next) {
+  
   const spot = await Spot.findOne({where: {
     id: req.params.spotId
   }});
@@ -116,7 +117,23 @@ const bookingAuth = async function (req, res, next) {
   return res.status(403).json({ message: 'Forbidden' });
 };
 
+const spotImgAuth = async function (req, res, next) {
+  const img = await SpotImage.findOne({where: {
+    id: req.params.imageId
+  }});
+
+  if(img){
+    const spot = await Spot.findByPk(img.spotId);
+    
+    if (spot.ownerId === req.user.id) return next();
+  };
+
+  if(img === null) return next();
+
+  return res.status(403).json({ message: 'Forbidden' });
+};
 
 
 
-module.exports = { setTokenCookie, restoreUser, requireAuth, spotAuth, reviewAuth, bookingAuth };
+
+module.exports = { setTokenCookie, restoreUser, requireAuth, spotAuth, reviewAuth, bookingAuth, spotImgAuth };

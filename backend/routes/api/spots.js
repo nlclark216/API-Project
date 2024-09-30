@@ -1,13 +1,13 @@
 const express = require('express');
-const { Op, where } = require('sequelize');
-const bcrypt = require('bcryptjs');
+const router = express.Router();
+const { Op } = require('sequelize');
 
-const { requireAuth, spotAuth, bookingAuth, validateBookingDates  } = require('../../utils/auth');
+const { requireAuth, spotAuth } = require('../../utils/auth');
 
 const { Spot, SpotImage, Review, User, ReviewImage, Booking } = require('../../db/models');
 
 
-const router = express.Router();
+
 
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
@@ -95,7 +95,18 @@ router.get('/', async (req, res) => {
 router.get('/current', requireAuth, async (req, res) => {
     const {user} = req;
     const spot = await Spot.findAll({
-        where: {ownerId: user.id}
+        where: {ownerId: user.id},
+        include: [{
+          model: SpotImage,
+          as: 'previewImage',
+          attributes: ['url']
+        }, 
+        {
+          model: Review,
+          as: 'avgRating',
+          attributes: ['stars']
+        }
+      ]
     })
     return res.json(spot);
 });
@@ -103,19 +114,24 @@ router.get('/current', requireAuth, async (req, res) => {
 router.get('/:spotId', async (req, res) => {
     const { spotId } = req.params;
     const spot = await Spot.findByPk(spotId,
-      {include: [{ 
+    { include: [
+      { 
         model: SpotImage,
-        attributes: ['id', 'url', 'preview']
+        as: 'previewImage',
+        attributes: ['url']
       }, 
-      // {
-      //   model: User, 
-      //   as: 'Owner',
-      //   through: {
-      //     attributes: ['id', 'firstName', 'lastName']
-      //   }
-      // }
-    ]}
-    );
+      {
+        model: User,
+        as: 'Owner',
+        attributes: ['id', 'firstName', 'lastName']
+      },
+      {
+        model: Review,
+        as: 'avgRating',
+        attributes: ['stars']
+      }
+    ]
+    });
     if(!spot) res.status(404).json({
         "message": "Spot couldn't be found"
       })

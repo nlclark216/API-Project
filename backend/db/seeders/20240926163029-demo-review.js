@@ -29,6 +29,24 @@ module.exports = {
         spotId: 5,
         review: "Really liked this spot!",
         stars: 5,
+      },
+      {
+        userId: 1,
+        spotId: 2,
+        review: "This was an awesome spot!",
+        stars: 5,
+      },
+      {
+        userId: 2,
+        spotId: 4,
+        review: "What an amazing spot!",
+        stars: 4,
+      },
+      {
+        userId: 3,
+        spotId: 6,
+        review: "Really liked this spot!",
+        stars: 5,
       }
     ], { validate: true });
   },
