@@ -1,12 +1,14 @@
 const express = require('express');
-const { check } = require('express-validator');
+const { check, query } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { requireAuth, bookingAuth } = require('../../utils/auth');
 const router = express.Router();
 const { Booking, Spot } = require('../../db/models');
-const { where } = require('sequelize');
+const { Op } = require('sequelize');
+
 
 const currentDate = new Date().toISOString().slice(0, 10);
+
 
 // need variable that checks and returns req start date - no req to pull from here
 const validateBooking = [
@@ -15,23 +17,17 @@ const validateBooking = [
         .isAfter(currentDate)
         .withMessage("Start date must be in the future."),
     check('endDate')
-        .exists({checkFalsy: true})
-        .custom(async userId => {
-            const booking = await Booking.findAll({
-                where: {userId: userId}
-            });
-            const startDate = new Date((booking.startDate)).getTime();
-            const endDate = new Date(Number(booking.endDate)).getTime();
-            // currently returning strings - need integers
-            if (endDate.isBefore(startDate)){
-                throw new Error("End date must be after start date.")
-            }
-        }),
-    check('endDate')
         .isAfter(currentDate)
         .withMessage("Past bookings can't be modified."),
+    check('endDate')
+        .custom(async (value, {req}) => {
+            if(value <= req.body.startDate){
+                throw new Error('endDate cannot be on or before startDate');
+            }
+        }),
     handleValidationErrors
 ];
+
 
 
 //Get Current User Bookings

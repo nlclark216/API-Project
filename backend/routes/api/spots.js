@@ -13,7 +13,8 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
 const validateReview  = require('./reviews');
-const validateBooking  = require('./bookings');
+const validateBooking = require('./bookings');
+
 
 const validateSpot = [
   check('address')
@@ -271,6 +272,11 @@ router.get('/:spotId/bookings', requireAuth, async (req, res) => {
 router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) => {
 
   const { startDate, endDate } = req.body;
+  if(startDate >= endDate){
+    return res.status(400).json({
+      errors: { endDate: "endDate cannot be on or before startDate" }
+    })
+  }
   const spotId = req.params.spotId;
   const userId = req.user.id;
 
@@ -281,8 +287,6 @@ router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) 
      message: "Spot couldn't be found" });
   }
 
-  // // const validationErrors = validateBookingDates(startDate, endDate);
-  // this logic currently catches every date: investigate
   const existingBooking = await Booking.findOne({
     where: {
       spotId: spotId,
