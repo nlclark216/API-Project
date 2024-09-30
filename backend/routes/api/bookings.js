@@ -86,7 +86,7 @@ router.put('/:bookingId', requireAuth, bookingAuth, validateBooking, async (req,
 router.delete('/:bookingId', requireAuth, bookingAuth, async (req, res) => {
     const { bookingId } = req.params;
     const booking = await Booking.findByPk(bookingId);
-    console.log(booking)
+
 
     if(!booking){
         return res.status(404).json({

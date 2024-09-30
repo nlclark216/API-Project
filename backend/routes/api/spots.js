@@ -207,7 +207,7 @@ router.get('/:spotId', async (req, res) => {
     ]
     });
 
-   console.log(spot)
+
     if(!spot) res.status(404).json({
         "message": "Spot couldn't be found"
       });
@@ -227,10 +227,10 @@ router.get('/:spotId', async (req, res) => {
         price: spot.price,
         createdAt: spot.createdAt,
         updatedAt: spot.updatedAt,
-        spotImages: spot.SpotImages,
-        owner: spot.Owner,
         avgRating: spot.get('avgRating') ? +parseFloat(spot.get('avgRating')).toFixed(1) : null,
-        numReviews: spot.get('numReviews') ? +parseFloat(spot.get('numReviews')).toFixed(1) : null
+        numReviews: spot.get('numReviews') ? +parseFloat(spot.get('numReviews')).toFixed(1) : null,
+        SpotImages: spot.SpotImages,
+        Owner: spot.Owner
       };
 
     
@@ -372,11 +372,9 @@ router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) =>
 //Get All Bookings Based on SpotId
 router.get('/:spotId/bookings', requireAuth, async (req, res) => {
   const spotId = req.params.spotId;
-  console.log(spotId)
   const userId = req.user.id;
 
   const spot = await Spot.findByPk(spotId);
-  console.log(spot)
 
   if(!spot){return res.status(404).json({"message": "Spot couldn't be found"});};
 
