@@ -147,23 +147,40 @@ router.get('/current', requireAuth, async (req, res) => {
         },
         include: [
           {
-            model: Review, attributes: []
+              model: Review,
+              attributes: []
           },
           {
-            model: SpotImage,
-            attributes: []
+              model: SpotImage,
+              attributes: ['url'],
+              where: { preview: true },
+              required: false
           }
-        ]
-    })
-
-
-    // const reviews = await Review.sum('stars', {
-    //   where: { spotId: spot.id }
-    // });
-
-    // console.log(reviews)
+      ],
+        group: ['Spot.id', 'SpotImages.url'] 
+      });
+  
+      // Format the response
+      const formattedSpots = spots.map(spot => ({
+        id: spot.id,
+        ownerId: spot.ownerId,
+        address: spot.address,
+        city: spot.city,
+        state: spot.state,
+        country: spot.country,
+        lat: spot.lat,
+        lng: spot.lng,
+        name: spot.name,
+        description: spot.description,
+        price: spot.price,
+        createdAt: spot.createdAt,
+        updatedAt: spot.updatedAt,
+        avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
+        previewImage: spot.get('previewImage') || null
+      }));
     
-    return res.json(spot);
+      return res.status(200).json({
+        Spots: formattedSpots});
 });
 
 router.get('/:spotId', async (req, res) => {
