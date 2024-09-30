@@ -45,5 +45,41 @@ router.get('/current', requireAuth, async (req, res) => {
     });
     return res.status(200).json(bookings);
 })
+//EDIT a booking
+router.put('/:bookingId', requireAuth, authorizeBookingOwner, async (req, res) => {
+    const { startDate, endDate } = req.body;
+    const bookingId = req.params.bookingId;
+    const booking = await Booking.findByPk(bookingId);
+    if (!booking) {
+        return res.status(404).json({ message: "Booking couldn't be found" });
+    }
+    const validationErrors = await validateBookingDates(startDate, endDate, booking);
+    if (validationErrors) {
+        if (validationErrors.conflict || validationErrors.paradox) {
+            return res.status(403).json({ message: "Conflict", errors: validationErrors });
+        }
+        return res.status(400).json({ message: "Bad Request", errors: validationErrors });
+    }
+    booking.startDate = startDate;
+    booking.endDate = endDate;
+    await booking.save();
+    return res.status(200).json(booking);
+});
+// DELETE a booking
+router.delete('/:bookingId', requireAuth, authorizeBookingOwner, async (req, res) => {
+    const bookingId = req.params.bookingId;
+    const booking = await Booking.findByPk(bookingId);
+
+    if (!booking) {
+        return res.status(404).json({ message: "Booking couldn't be found" });
+    }
+
+    if (new Date(booking.startDate) <= new Date()) {
+        return res.status(403).json({ message: "Bookings that have been started can't be deleted" });
+    }
+
+    await booking.destroy();
+    return res.status(200).json({ message: "Successfully deleted" });
+});
 
 module.exports = [ router, validateBooking ];
