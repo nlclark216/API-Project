@@ -101,7 +101,21 @@ router.get('/current', requireAuth, async (req, res) => {
 });
 
 router.get('/:spotId', async (req, res) => {
-    const spot = await Spot.findByPk(req.params.spotId);
+    const { spotId } = req.params;
+    const spot = await Spot.findByPk(spotId,
+      {include: [{ 
+        model: SpotImage,
+        attributes: ['id', 'url', 'preview']
+      }, 
+      // {
+      //   model: User, 
+      //   as: 'Owner',
+      //   through: {
+      //     attributes: ['id', 'firstName', 'lastName']
+      //   }
+      // }
+    ]}
+    );
     if(!spot) res.status(404).json({
         "message": "Spot couldn't be found"
       })
@@ -298,7 +312,7 @@ router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) 
       
     }
   });
-  console.log(existingBooking)
+
   if (existingBooking){
     return res.status(403).json({
       message: "Sorry, this spot is already booked for the specified dates",
@@ -322,11 +336,6 @@ router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) 
       updatedAt: booking.updatedAt
     });
   };
-
-  // // if (validationErrors){
-  // //   return res.status(400).json({
-  // //   message: "Bad Request", errors: validationErrors });
-  // // }
 
 });
   

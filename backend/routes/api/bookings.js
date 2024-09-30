@@ -42,4 +42,42 @@ router.get('/current', requireAuth, async (req, res) => {
     return res.status(200).json(bookings);
 })
 
+// Edit a Booking
+router.put('/:bookingId', requireAuth, bookingAuth, validateBooking, async (req, res) => {
+    const { bookingId } = req.params;
+    const booking = await Booking.findByPk(bookingId);
+
+    if(!booking){
+        return res.status(404).json({
+            "message": "Booking couldn't be found"
+          })
+    }
+    const { startDate, endDate } = req.body;
+
+    const existingBooking = await Booking.findOne({
+    where: {
+      spotId: booking.spotId,
+      startDate: {[Op.lte]: endDate},
+      endDate: {[Op.gte]: startDate}
+        }
+    });
+
+    if (existingBooking){
+        return res.status(403).json({
+          message: "Sorry, this spot is already booked for the specified dates",
+          errors: {
+              startDate: "Start date conflicts with an existing booking",
+              endDate: "End date conflicts with an existing booking"
+          }
+        });
+    };
+
+
+    booking.startDate = startDate,
+    booking.endDate = endDate;
+    
+
+    res.json(booking)
+})
+
 module.exports = [ router, validateBooking ];
