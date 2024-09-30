@@ -145,70 +145,140 @@ router.get('/current', requireAuth, async (req, res) => {
   
           ]
         },
-        include: [
-          {
-              model: Review,
-              attributes: []
-          },
-          {
-              model: SpotImage,
-              attributes: ['url'],
-              where: { preview: true },
-              required: false
-          }
-      ],
-        group: ['Spot.id', 'SpotImages.url'] 
-      });
+      include: [
+        {
+            model: Review,
+            attributes: []
+        },
+        {
+            model: SpotImage,
+            attributes: ['url'],
+            where: { preview: true },
+            required: false
+        }
+    ],
+      group: ['Spot.id', 'SpotImages.url'] 
+    });
+
+    // Format the response
+    const formattedSpots = spots.map(spot => ({
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: spot.lat,
+      lng: spot.lng,
+      name: spot.name,
+      description: spot.description,
+      price: spot.price,
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
+      previewImage: spot.get('previewImage') || null
+    }));
   
-      // Format the response
-      const formattedSpots = spots.map(spot => ({
-        id: spot.id,
-        ownerId: spot.ownerId,
-        address: spot.address,
-        city: spot.city,
-        state: spot.state,
-        country: spot.country,
-        lat: spot.lat,
-        lng: spot.lng,
-        name: spot.name,
-        description: spot.description,
-        price: spot.price,
-        createdAt: spot.createdAt,
-        updatedAt: spot.updatedAt,
-        avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
-        previewImage: spot.get('previewImage') || null
-      }));
-    
-      return res.status(200).json({
-        Spots: formattedSpots});
+    return res.status(200).json({
+      Spots: formattedSpots});
 });
 
+// router.get('/:spotId', async (req, res) => {
+//     const { spotId } = req.params;
+//     const spot = await Spot.findByPk(spotId,
+//     { include: [
+//       { 
+//         model: SpotImage,
+//         as: 'previewImage',
+//         attributes: ['url']
+//       }, 
+//       {
+//         model: User,
+//         as: 'Owner',
+//         attributes: ['id', 'firstName', 'lastName']
+//       },
+//       {
+//         model: Review,
+//         as: 'avgRating',
+//         attributes: ['stars']
+//       }
+//     ]
+//     });
+//     if(!spot) res.status(404).json({
+//         "message": "Spot couldn't be found"
+//       })
+//     return res.json(spot);
+// });
 router.get('/:spotId', async (req, res) => {
-    const { spotId } = req.params;
-    const spot = await Spot.findByPk(spotId,
-    { include: [
-      { 
-        model: SpotImage,
-        as: 'previewImage',
-        attributes: ['url']
-      }, 
-      {
-        model: User,
-        as: 'Owner',
-        attributes: ['id', 'firstName', 'lastName']
-      },
-      {
-        model: Review,
-        as: 'avgRating',
-        attributes: ['stars']
+  const { spotId } = req.params;
+
+  try {
+      const spot = await Spot.findByPk(spotId, {
+          attributes: {
+              include: [
+                  [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgStarRating'],
+                  [Sequelize.fn('COUNT', Sequelize.col('Reviews.id')), 'numReviews']
+              ]
+          },
+          include: [
+              {
+                  model: Review,
+                  attributes: []
+              },
+              {
+                  model: SpotImage,
+                  attributes: ['id', 'url', 'preview'],
+                  required: false
+              },
+              {
+                  model: User,
+                  as: 'Owner',
+                  attributes: ['id', 'firstName', 'lastName']
+              }
+          ],
+          group: ['Spot.id', 'SpotImages.id', 'Owner.id']
+      });
+
+      if (!spot) {
+          return res.status(404).json({ error: 'Spot not found' });
       }
-    ]
-    });
-    if(!spot) res.status(404).json({
-        "message": "Spot couldn't be found"
-      })
-    return res.json(spot);
+
+      // Format the response
+      const formattedSpot = {
+          id: spot.id,
+          ownerId: spot.ownerId,
+          address: spot.address,
+          city: spot.city,
+          state: spot.state,
+          country: spot.country,
+          lat: spot.lat,
+          lng: spot.lng,
+          name: spot.name,
+          description: spot.description,
+          price: spot.price,
+          createdAt: spot.createdAt,
+          updatedAt: spot.updatedAt,
+          numReviews: spot.get('numReviews') ? parseInt(spot.get('numReviews')) : 0,
+          avgStarRating: spot.get('avgStarRating') ? parseFloat(spot.get('avgStarRating')).toFixed(1) : null,
+          SpotImages: spot.SpotImages.map(image => ({
+              id: image.id,
+              url: image.url,
+              preview: image.preview
+          })),
+          Owner: spot.Owner ? {
+              id: spot.Owner.id,
+              firstName: spot.Owner.firstName,
+              lastName: spot.Owner.lastName
+          } : null
+      };
+
+      return res.status(200).json(formattedSpot);
+  } catch (error) {
+      console.error('Error fetching spot:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
+
 
 router.post('/:spotId/images', requireAuth, spotAuth, async (req, res) => {
     const spot = await Spot.findByPk(req.params.spotId);
