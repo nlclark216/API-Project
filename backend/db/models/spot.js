@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
   class Spot extends Model {
     static associate(models) {
       Spot.belongsTo(models.User, { foreignKey: "ownerId",  as: 'Owner' });
-      Spot.hasMany(models.SpotImage, { foreignKey: "spotId", onDelete: 'cascade', hooks: true, as: 'previewImage' });
-      Spot.hasMany(models.Review, { foreignKey: "spotId", onDelete: 'cascade', hooks: true, as: 'avgRating' });
+      Spot.hasMany(models.SpotImage, { foreignKey: "spotId", onDelete: 'cascade', hooks: true });
+      Spot.hasMany(models.Review, { foreignKey: "spotId", onDelete: 'cascade', hooks: true });
       Spot.hasMany(models.Booking, { foreignKey: "spotId", onDelete: 'cascade', hooks: true });
     };
   };
@@ -81,7 +81,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isNumeric: true,
       }
-    },
+    }
   }, {
     sequelize,
     modelName: 'Spot'

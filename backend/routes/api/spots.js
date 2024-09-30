@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 
 const { requireAuth, spotAuth } = require('../../utils/auth');
 
-const { Spot, SpotImage, Review, User, ReviewImage, Booking } = require('../../db/models');
+const { Spot, SpotImage, Review, User, ReviewImage, Booking, sequelize, Sequelize } = require('../../db/models');
 
 
 
@@ -88,16 +88,23 @@ router.post('/', validateSpot, requireAuth, async (req, res) => {
 
 router.get('/', async (req, res) => {
     const spots = await Spot.findAll({
-      include: [{
-        model: SpotImage,
-        as: 'previewImage',
-        attributes: ['url']
-      }, 
-      {
-        model: Review,
-        as: 'avgRating',
-        attributes: ['stars']
-      }]
+      attributes: {
+        include: [
+          [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
+          [Sequelize.col('SpotImages.url'), 'previewImage']
+
+        ]
+      },
+      include: [
+        {
+          model: Review, 
+          attributes: []
+        },
+        {
+          model: SpotImage,
+          attributes: []
+        }
+      ]
     });
 
     return res.json({Spots: spots});
@@ -107,23 +114,30 @@ router.get('/current', requireAuth, async (req, res) => {
     const {user} = req;
     const spot = await Spot.findAll({
         where: {ownerId: user.id},
-        include: [{
-          model: SpotImage,
-          as: 'previewImage',
-          attributes: ['url']
-        }, 
-        {
-          model: Review,
-          as: 'avgRating',
-          attributes: ['stars']
-        }]
+        attributes: {
+          include: [
+            [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
+            [Sequelize.col('SpotImages.url'), 'previewImage']
+  
+          ]
+        },
+        include: [
+          {
+            model: Review, attributes: []
+          },
+          {
+            model: SpotImage,
+            attributes: []
+          }
+        ]
     })
 
 
-    // const sum = await Review.sum('stars');
-    // if(sum.userId === user.id){
-    //   console.log('SUM!!!', sum)
-    // }
+    // const reviews = await Review.sum('stars', {
+    //   where: { spotId: spot.id }
+    // });
+
+    // console.log(reviews)
     
     return res.json(spot);
 });
