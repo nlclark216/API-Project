@@ -15,7 +15,7 @@ module.exports = {
       references: { model: 'Spots' },
       onDelete: 'cascade',
       allowNull: false
-    });
+    }, options);
   },
 
   async down (queryInterface, Sequelize) {

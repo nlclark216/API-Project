@@ -15,7 +15,7 @@ module.exports = {
       references: { model: 'Users' },
       onDelete: 'cascade',
       allowNull: false
-    });
+    }, options);
   },
   async down (queryInterface, Sequelize) {
     await queryInterface.removeColumn(options, 'ownerId');

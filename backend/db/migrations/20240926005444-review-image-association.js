@@ -12,7 +12,7 @@ module.exports = {
     await queryInterface.addColumn(options, 'reviewId', {
       type: Sequelize.INTEGER,
       references: { model: 'Reviews' }
-    });
+    }, options);
   },
   async down (queryInterface, Sequelize) {
     await queryInterface.removeColumn(options, 'reviewId');
