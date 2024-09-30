@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { requireAuth, bookingAuth } = require('../../utils/auth');
 const router = express.Router();
-const { Booking, Spot } = require('../../db/models');
+const { Booking, Spot, Sequelize } = require('../../db/models');
 const { Op } = require('sequelize');
 
 
@@ -13,8 +13,11 @@ const currentDate = new Date().toISOString().slice(0, 10);
 const validateBooking = [
     check('startDate')
         .exists({checkFalsy: true})
-        .isAfter(currentDate)
-        .withMessage("Start date must be in the future."),
+        .custom(async (value, {req}) => {
+            if(value < currentDate){
+                throw new Error('Start date must be in the future.');
+            }
+        }),
     check('endDate')
         .isAfter(currentDate)
         .withMessage("Past bookings can't be modified."),
@@ -91,12 +94,16 @@ router.delete('/:bookingId', requireAuth, bookingAuth, async (req, res) => {
           })
     };
 
-    const { startDate } = req.body;
-    if(startDate <= currentDate){
+    const { startDate } = booking;
+    const start = new Date(startDate).toISOString();
+    const current = new Date(currentDate).toISOString()
+
+    if(start === current){
         return res.status(403).json({
-            message: "Bookings that have been started can't be deleted"
+            "message": "Bookings that have been started can't be deleted"
           })
     };
+    
 
     await booking.destroy();
 
