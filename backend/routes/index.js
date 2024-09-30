@@ -2,6 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
+// router.get('/hello/world', function(req, res) {
+//   res.cookie('XSRF-TOKEN', req.csrfToken());
+//   res.send('Hello World!');
+// });
 
 // Keep this route to test frontend setup in Mod 5
 router.post('/test', function (req, res) {
