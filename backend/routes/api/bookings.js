@@ -1,7 +1,7 @@
 const express = require('express');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
-const { requireAuth, bookingAuth } = require('../../utils/auth');
+const { requireAuth, bookingAuth, validateBookingDates } = require('../../utils/auth');
 const router = express.Router();
 const { Booking, Spot } = require('../../db/models');
 const { where } = require('sequelize');
@@ -9,29 +9,6 @@ const { where } = require('sequelize');
 const currentDate = new Date().toISOString().slice(0, 10);
 
 // need variable that checks and returns req start date - no req to pull from here
-const validateBooking = [
-    check('startDate')
-        .exists({checkFalsy: true})
-        .isAfter(currentDate)
-        .withMessage("Start date must be in the future."),
-    check('endDate')
-        .exists({checkFalsy: true})
-        .custom(async userId => {
-            const booking = await Booking.findAll({
-                where: {userId: userId}
-            });
-            const startDate = new Date((booking.startDate)).getTime();
-            const endDate = new Date(Number(booking.endDate)).getTime();
-            // currently returning strings - need integers
-            if (endDate.isBefore(startDate)){
-                throw new Error("End date must be after start date.")
-            }
-        }),
-    check('endDate')
-        .isAfter(currentDate)
-        .withMessage("Past bookings can't be modified."),
-    handleValidationErrors
-];
 
 
 //Get Current User Bookings
@@ -66,20 +43,48 @@ router.put('/:bookingId', bookingAuth, requireAuth, async (req, res) => {
     return res.status(200).json(booking);
 });
 // DELETE a booking
-router.delete('/:bookingId', requireAuth, authorizeBookingOwner, async (req, res) => {
-    const bookingId = req.params.bookingId;
-    const booking = await Booking.findByPk(bookingId);
-
-    if (!booking) {
-        return res.status(404).json({ message: "Booking couldn't be found" });
+router.delete('/:bookingId', requireAuth, async (req, res) => {
+    const { bookingId } = req.params;
+    const userId = req.user.id;
+  
+    try {
+      const booking = await Booking.findByPk(bookingId, {
+        include: {
+          model: Spot,
+          attributes: ['ownerId']
+        }
+      });
+  
+      if (!booking) {
+        return res.status(404).json({
+          message: "Booking couldn't be found"
+        });
+      }
+  
+      // Check if the booking belongs to the current user or the spot belongs to the current user
+      if (booking.userId !== userId && booking.Spot.ownerId !== userId) {
+        return res.status(403).json({
+          message: "You are not authorized to delete this booking"
+        });
+      }
+  
+      // Check if the booking has already started
+      if (new Date(booking.startDate) <= new Date()) {
+        return res.status(403).json({
+          message: "Bookings that have been started can't be deleted"
+        });
+      }
+  
+      await booking.destroy();
+  
+      return res.status(200).json({
+        message: "Successfully deleted"
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "An error occurred while trying to delete the booking"
+      });
     }
-
-    if (new Date(booking.startDate) <= new Date()) {
-        return res.status(403).json({ message: "Bookings that have been started can't be deleted" });
-    }
-
-    await booking.destroy();
-    return res.status(200).json({ message: "Successfully deleted" });
-});
-
-module.exports = [ router, validateBooking ];
+  });
+  
+module.exports = [ router, validateBookingDates ];
