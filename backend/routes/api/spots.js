@@ -123,7 +123,7 @@ router.get('/', async (req, res) => {
     price: spot.price,
     createdAt: spot.createdAt,
     updatedAt: spot.updatedAt,
-    avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
+    avgRating: spot.get('avgRating') ? +parseFloat(spot.get('avgRating')).toFixed(1) : null,
     previewImage: spot.get('previewImage') || null
   }));
 
@@ -183,11 +183,17 @@ router.get('/current', requireAuth, async (req, res) => {
 router.get('/:spotId', async (req, res) => {
     const { spotId } = req.params;
     const spot = await Spot.findByPk(spotId,
-    { include: [
+    { 
+      attributes: {
+        include: [
+          [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
+          [Sequelize.fn('COUNT', Sequelize.col('Reviews.id')), 'numReviews']
+        ]
+      },
+    include: [
       { 
         model: SpotImage,
-        as: 'previewImage',
-        attributes: ['url']
+        attributes: ['id', 'url', 'preview']
       }, 
       {
         model: User,
@@ -196,15 +202,39 @@ router.get('/:spotId', async (req, res) => {
       },
       {
         model: Review,
-        as: 'avgRating',
         attributes: ['stars']
       }
     ]
     });
+
+   console.log(spot)
     if(!spot) res.status(404).json({
         "message": "Spot couldn't be found"
-      })
-    return res.json(spot);
+      });
+
+    const formattedSpots = 
+      {
+        id: spot.id,
+        ownerId: spot.ownerId,
+        address: spot.address,
+        city: spot.city,
+        state: spot.state,
+        country: spot.country,
+        lat: parseFloat(spot.lat),
+        lng: parseFloat(spot.lng),
+        name: spot.name,
+        description: spot.description,
+        price: spot.price,
+        createdAt: spot.createdAt,
+        updatedAt: spot.updatedAt,
+        spotImages: spot.SpotImages,
+        owner: spot.Owner,
+        avgRating: spot.get('avgRating') ? +parseFloat(spot.get('avgRating')).toFixed(1) : null,
+        numReviews: spot.get('numReviews') ? +parseFloat(spot.get('numReviews')).toFixed(1) : null
+      };
+
+    
+    return res.json(formattedSpots);
 });
 
 router.post('/:spotId/images', requireAuth, spotAuth, async (req, res) => {
