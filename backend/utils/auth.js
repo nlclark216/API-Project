@@ -117,7 +117,7 @@ const bookingAuth = async function (req, res, next) {
   return res.status(403).json({ message: 'Forbidden' });
 };
 
-const spotImgAuth = async function (req, res, next) {
+const imgAuth = async function (req, res, next) {
   const img = await SpotImage.findOne({where: {
     id: req.params.imageId
   }});
@@ -136,4 +136,4 @@ const spotImgAuth = async function (req, res, next) {
 
 
 
-module.exports = { setTokenCookie, restoreUser, requireAuth, spotAuth, reviewAuth, bookingAuth, spotImgAuth };
+module.exports = { setTokenCookie, restoreUser, requireAuth, spotAuth, reviewAuth, bookingAuth, imgAuth };

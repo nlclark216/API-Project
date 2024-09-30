@@ -87,7 +87,18 @@ router.post('/', validateSpot, requireAuth, async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-    const spots = await Spot.findAll();
+    const spots = await Spot.findAll({
+      include: [{
+        model: SpotImage,
+        as: 'previewImage',
+        attributes: ['url']
+      }, 
+      {
+        model: Review,
+        as: 'avgRating',
+        attributes: ['stars']
+      }]
+    });
 
     return res.json({Spots: spots});
 });
@@ -105,8 +116,7 @@ router.get('/current', requireAuth, async (req, res) => {
           model: Review,
           as: 'avgRating',
           attributes: ['stars']
-        }
-      ]
+        }]
     })
     return res.json(spot);
 });
