@@ -1,5 +1,5 @@
 const express = require('express');
-const { check, query } = require('express-validator');
+const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { requireAuth, bookingAuth } = require('../../utils/auth');
 const router = express.Router();
@@ -10,7 +10,6 @@ const { Op } = require('sequelize');
 const currentDate = new Date().toISOString().slice(0, 10);
 
 
-// need variable that checks and returns req start date - no req to pull from here
 const validateBooking = [
     check('startDate')
         .exists({checkFalsy: true})
@@ -78,6 +77,34 @@ router.put('/:bookingId', requireAuth, bookingAuth, validateBooking, async (req,
     
 
     res.json(booking)
-})
+});
+
+// Delete a Booking
+router.delete('/:bookingId', requireAuth, bookingAuth, async (req, res) => {
+    const { bookingId } = req.params;
+    const booking = await Booking.findByPk(bookingId);
+    console.log(booking)
+
+    if(!booking){
+        return res.status(404).json({
+            "message": "Booking couldn't be found"
+          })
+    };
+
+    const { startDate } = req.body;
+    if(startDate <= currentDate){
+        return res.status(403).json({
+            message: "Bookings that have been started can't be deleted"
+          })
+    };
+
+    await booking.destroy();
+
+    return res.status(200).json({
+        "message": "Successfully deleted"
+      });
+});
+
+
 
 module.exports = [ router, validateBooking ];

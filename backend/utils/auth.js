@@ -104,9 +104,14 @@ const bookingAuth = async function (req, res, next) {
     id: req.params.bookingId
   }});
 
-  if(booking === null) return next();
+  if(booking){
+    const spot = await Spot.findByPk(booking.spotId);
+    
+    if (booking.userId === req.user.id || 
+    spot.ownerId === req.user.id) return next();
+  };
 
-  if (booking.userId === req.user.id) return next();
+  if(booking === null) return next();
 
   return res.status(403).json({ message: 'Forbidden' });
 };
