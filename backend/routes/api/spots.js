@@ -90,24 +90,51 @@ router.get('/', async (req, res) => {
     const spots = await Spot.findAll({
       attributes: {
         include: [
-          [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
+          // [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
           [Sequelize.col('SpotImages.url'), 'previewImage']
-
         ]
       },
       include: [
         {
           model: Review, 
-          attributes: []
+          attributes: ['stars']
         },
         {
           model: SpotImage,
-          attributes: []
+          attributes: ['url', 'preview']
         }
       ]
     });
 
-    return res.json({Spots: spots});
+    let Spots = [];
+    spots.map((s) => {
+      Spots.push(s.toJSON())
+    });
+
+    Spots.map((s) => {
+      s.avgRating = s.Reviews.reduce((a, b) => a + b.stars, 0) / (s.Reviews.length || 1);
+      s.previewImage = s.SpotImages.filter(i => i.preview)[0]?.url || 'no preview url'; 
+    })
+
+    const formattedSpots = Spots.map(spot => ({
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: parseFloat(spot.lat),
+      lng: parseFloat(spot.lng),
+      name: spot.name,
+      description: spot.description,
+      price: spot.price,
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      avgRating: spot.avgRating,
+      previewImage: spot.previewImage
+    }));
+
+    return res.json({Spots: formattedSpots});
 });
 
 router.get('/current', requireAuth, async (req, res) => {
@@ -118,28 +145,44 @@ router.get('/current', requireAuth, async (req, res) => {
           include: [
             [Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
             [Sequelize.col('SpotImages.url'), 'previewImage']
-  
           ]
         },
         include: [
           {
-            model: Review, attributes: []
+            model: Review, 
+            attributes: ['stars']
           },
           {
             model: SpotImage,
-            attributes: []
+            attributes: ['url']
           }
         ]
-    })
+    });
 
+    let Spots = [];
+    spot.map((s) => {
+      Spots.push(s.toJSON())
+    });
 
-    // const reviews = await Review.sum('stars', {
-    //   where: { spotId: spot.id }
-    // });
+    const formattedSpots = Spots.map(spot => ({
+      id: spot.id,
+      ownerId: spot.ownerId,
+      address: spot.address,
+      city: spot.city,
+      state: spot.state,
+      country: spot.country,
+      lat: parseFloat(spot.lat),
+      lng: parseFloat(spot.lng),
+      name: spot.name,
+      description: spot.description,
+      price: spot.price,
+      createdAt: spot.createdAt,
+      updatedAt: spot.updatedAt,
+      avgRating: spot.avgRating,
+      previewImage: spot.previewImage // 
+    }));
 
-    // console.log(reviews)
-    
-    return res.json(spot);
+    return res.json(formattedSpots);
 });
 
 router.get('/:spotId', async (req, res) => {
