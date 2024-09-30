@@ -103,38 +103,32 @@ router.get('/', async (req, res) => {
           model: SpotImage,
           attributes: ['url', 'preview']
         }
-      ]
+      ],
+      group: ['Spot.id', 'SpotImages.url'] 
     });
 
-    let Spots = [];
-    spots.map((s) => {
-      Spots.push(s.toJSON())
-    });
-
-    Spots.map((s) => {
-      s.avgRating = s.Reviews.reduce((a, b) => a + b.stars, 0) / (s.Reviews.length || 1);
-      s.previewImage = s.SpotImages.filter(i => i.preview)[0]?.url || 'no preview url'; 
-    })
-
-    const formattedSpots = Spots.map(spot => ({
+    // Format the response
+    const formattedSpots = spots.map(spot => ({
       id: spot.id,
       ownerId: spot.ownerId,
       address: spot.address,
       city: spot.city,
       state: spot.state,
       country: spot.country,
-      lat: parseFloat(spot.lat),
-      lng: parseFloat(spot.lng),
+      lat: spot.lat,
+      lng: spot.lng,
       name: spot.name,
       description: spot.description,
       price: spot.price,
       createdAt: spot.createdAt,
       updatedAt: spot.updatedAt,
-      avgRating: spot.avgRating,
-      previewImage: spot.previewImage
+      avgRating: spot.get('avgRating') ? parseFloat(spot.get('avgRating')).toFixed(1) : null,
+      previewImage: spot.get('previewImage') || null
     }));
-
-    return res.json({Spots: formattedSpots});
+  
+    return res.status(200).json({
+      Spots: formattedSpots});
+    // return res.json({Spots: spots});
 });
 
 router.get('/current', requireAuth, async (req, res) => {
