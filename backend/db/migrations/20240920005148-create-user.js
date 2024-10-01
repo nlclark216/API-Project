@@ -2,13 +2,17 @@
 /** @type {import('sequelize-cli').Migration} */
 
 let options = {};
+options.tableName = "Users";
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  
 };
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable({
+      tableName: "Users",
+      schema: options.schema
+      }, {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -50,7 +54,6 @@ module.exports = {
     }, options);
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = "Users";
     await queryInterface.dropTable(options);
   }
 };
